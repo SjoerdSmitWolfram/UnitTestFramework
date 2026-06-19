@@ -542,6 +542,7 @@ $configPatt = None | _?FileExistsQ;
 RunTests::pacletDir = "Paclet directory could not be located.";
 
 RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
+	$TestConfig,
 	configFile = conf,
 	assoc = a,
 	i = 0,
@@ -599,7 +600,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		];
 		<|
 			"TestReportObject" -> $TestReport,
-			"Summary" -> TestReportSummary[$TestResults]
+			"Summary" -> TestReportSummary[$TestResults],
+			"TestConfiguration" -> $TestConfig
 		|>
 	]
 ];
