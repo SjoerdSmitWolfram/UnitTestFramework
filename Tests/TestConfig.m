@@ -26,8 +26,7 @@ $TestConfig = <|
 	"TestCategorizationFunction" -> Automatic,
 	"TestReportOptions" -> {},
 	"PacletInitialization" -> Hold[Null], (* Don't reload the testing framework again *)
-	"TestDirectory" -> Automatic,
-	"ExampleConfigFile" -> FileNameJoin[{ParentDirectory @ DirectoryName[$InputFileName], "Examples", "Tests", "TestConfig.m"}]
+	"TestDirectory" -> Automatic
 |>;
 
 

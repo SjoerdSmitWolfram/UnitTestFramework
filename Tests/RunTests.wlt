@@ -4,8 +4,13 @@ query = Query[{
 	"TestConfiguration" -> Keys/*Sort
 }];
 
+exampleConfigFile = FileNameJoin[{
+	ParentDirectory @ $TestConfig["TestDirectory"],
+	"Examples", "Tests", "TestConfig.m"
+}];
+
 TestCreate[
-	query[RunTests[$TestConfig["ExampleConfigFile"]]]
+	query[RunTests[exampleConfigFile]]
 	,
 	Association[
 		"TestReportObject" -> True, 
@@ -13,8 +18,8 @@ TestCreate[
 			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "RandomSeeding", "ReportType", 
-			"SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestDirectory", "TestEvaluationFunction", "TestFileContext", 
-			"TestFiles", "TestReportOptions"
+			"SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
+			"TestFileContext",  "TestFiles", "TestReportOptions"
 		}
 	]
 	,
