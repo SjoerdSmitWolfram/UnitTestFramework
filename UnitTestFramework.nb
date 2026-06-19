@@ -1,0 +1,473 @@
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Initialization", \
+"Section",ExpressionUUID->"99480719-f4c6-4df9-a010-614199e329f3"],
+
+Cell[BoxData["Quit"], \
+"Input",ExpressionUUID->"bbb3af85-95b6-4310-ae2a-4a730fc55241"],
+
+Cell[BoxData[
+ RowBox[{"PacletDataRebuild", "[", 
+  "]"}]], "Input",ExpressionUUID->"10e6a55b-3a29-9f4b-a0f2-ef2396bf291a"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Once", " ", "@", " ", 
+   RowBox[{"PacletDirectoryLoad", "[", 
+    RowBox[{"FileNameJoin", "[", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"NotebookDirectory", "[", "]"}], 
+       ",", "\"\<UnitTestFramework\>\""}], "}"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"<<", "UnitTestFramework`"}]}], "Input",
+ InitializationCell->
+  True,ExpressionUUID->"113c0c2d-2337-4610-af84-43d8ac4e3776"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Example code", \
+"Section",ExpressionUUID->"d815f728-1812-4f94-a80e-94800e7ee03a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"RunTests", "[", "\[IndentingNewLine]", 
+  RowBox[{"FileNameJoin", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Testing\>\"", 
+     ",", "\"\<Tests\>\"", ",", "\"\<TestConfig.m\>\""}], "}"}], "]"}], 
+  "\[IndentingNewLine]", 
+  "]"}]], "Input",ExpressionUUID->"341efcf5-db31-544e-b5ae-43f8e7530f5c"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"TestReportObject\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TestReportObject",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 InsetBox[
+                  BoxData[
+                   FormBox[
+                    PaneBox[
+                    DynamicBox[
+                    FEPrivate`FrontEndResource[
+                    "MUnitExpressions", "SuccessIcon"]], Alignment -> Center, 
+                    ImageSize -> 
+                    Dynamic[{
+                    Automatic, 
+                    3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], TraditionalForm]]]}, 
+                PlotRange -> {{0, 1}, {0, 1}}, Background -> GrayLevel[0.93], 
+                Axes -> False, AspectRatio -> 1, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}], Frame -> True, FrameTicks -> None, 
+                FrameStyle -> Directive[
+                  Thickness[Tiny], 
+                  GrayLevel[0.55]]], 
+               GridBox[{{
+                  RowBox[{
+                    TagBox["\"Tests count: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["3", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Success rate: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    TagBox[
+                    InterpretationBox[
+                    StyleBox["\"100%\"", ShowStringCharacters -> False], 1., 
+                    AutoDelete -> True], PercentForm], "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 InsetBox[
+                  BoxData[
+                   FormBox[
+                    PaneBox[
+                    DynamicBox[
+                    FEPrivate`FrontEndResource[
+                    "MUnitExpressions", "SuccessIcon"]], Alignment -> Center, 
+                    ImageSize -> 
+                    Dynamic[{
+                    Automatic, 
+                    3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], TraditionalForm]]]}, 
+                PlotRange -> {{0, 1}, {0, 1}}, Background -> GrayLevel[0.93], 
+                Axes -> False, AspectRatio -> 1, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}], Frame -> True, FrameTicks -> None, 
+                FrameStyle -> Directive[
+                  Thickness[Tiny], 
+                  GrayLevel[0.55]]], 
+               GridBox[{{
+                  RowBox[{
+                    TagBox["\"Tests count: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["3", "SummaryItem"]}], ""}, {
+                  RowBox[{
+                    TagBox["\"Success rate: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    TagBox[
+                    InterpretationBox[
+                    StyleBox["\"100%\"", ShowStringCharacters -> False], 1., 
+                    AutoDelete -> True], PercentForm], "SummaryItem"]}], ""}, {
+                  RowBox[{
+                    TagBox["\"Success count: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["3", "SummaryItem"]}], "\[SpanFromLeft]"}, {
+                  RowBox[{
+                    TagBox["\"Time elapsed: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    
+                    TemplateBox[{
+                    "0``6.673393743112329", "\"s\"", "seconds", 
+                    "\"Seconds\""}, "Quantity", SyntaxForm -> Mod], 
+                    "SummaryItem"]}], "\[SpanFromLeft]"}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     TestReportObject[<|
+      "Title" -> Automatic, "Aborted" -> False, 
+       "TestResults" -> <|
+        2994915974501816222 -> 
+         TestObject[<|
+           "MetaInformation" -> None, "AbsoluteTime" -> 
+            3.9908656432475528`16.654672091866686*^9, "SameTest" -> SameQ, 
+            "SameMessages" -> Testing`MessageMatchQ, "MemoryConstraint" -> 
+            DirectedInfinity[1], "TimeConstraint" -> DirectedInfinity[1], 
+            "CreationID" -> "2a30c6d0-622a-4ddd-92ef-df7794801479", "TestID" -> 
+            "Test-1", "TestFileName" -> 
+            "C:\\Users\\sjoerds\\Workspace\\GitHub\\UnitTestFramework\\\
+Testing\\Tests\\ExampleUnitTests.wlt", "EvaluationID" -> 
+            "6213836d-7b06-4592-81d3-8adb90b1321f", "Input" -> HoldForm[
+              ExamplePaclet`MyFunction[6]], "ExpectedOutput" -> HoldForm[18], 
+            "ExpectedMessages" -> HoldForm[{}], "ActualOutput" -> 
+            HoldForm[18], "ActualMessages" -> {}, "AbsoluteTimeUsed" -> 
+            0``7.1505149978319915, "CPUTimeUsed" -> 0., "MemoryUsed" -> 3640, 
+            "IntermediateTestsTree" -> {}, "Outcome" -> "Success", 
+            "FailureType" -> None|>], 4520151188826811355 -> 
+         TestObject[<|
+           "MetaInformation" -> None, "AbsoluteTime" -> 
+            3.9908656432485529`16.654672091866797*^9, "SameTest" -> MatchQ, 
+            "SameMessages" -> Testing`MessageMatchQ, "MemoryConstraint" -> 
+            DirectedInfinity[1], "TimeConstraint" -> DirectedInfinity[1], 
+            "CreationID" -> "b8b6efc3-ed5e-4117-917b-59ea1ad8fa1f", "TestID" -> 
+            "Test-2", "TestFileName" -> 
+            "C:\\Users\\sjoerds\\Workspace\\GitHub\\UnitTestFramework\\\
+Testing\\Tests\\ExampleUnitTests.wlt", "EvaluationID" -> 
+            "facb7aa8-f918-4149-9e32-77ef57874409", "Input" -> HoldForm[
+              ExamplePaclet`MyFunction[5]], "ExpectedOutput" -> HoldForm[
+              PatternTest[
+               Blank[], FailureQ]], "ExpectedMessages" -> HoldForm[{}], 
+            "ActualOutput" -> HoldForm[
+              Failure[
+              "ConfirmationFailed", <|
+               "MessageTemplate" -> "``[``] did not return True.", 
+                "MessageParameters" :> {EvenQ, 25}, "ConfirmationType" -> 
+                "ConfirmBy", "Expression" :> 25, "Information" -> Null, 
+                "Function" -> EvenQ|>]], "ActualMessages" -> {}, 
+            "AbsoluteTimeUsed" -> 0``7.1505149978319915, "CPUTimeUsed" -> 0., 
+            "MemoryUsed" -> 4920, "IntermediateTestsTree" -> {}, "Outcome" -> 
+            "Success", "FailureType" -> None|>], 3259026789580861388 -> 
+         TestObject[<|
+           "MetaInformation" -> None, "AbsoluteTime" -> 
+            3.9908656432485529`16.654672091866797*^9, "SameTest" -> SameQ, 
+            "SameMessages" -> Testing`MessageMatchQ, "MemoryConstraint" -> 
+            DirectedInfinity[1], "TimeConstraint" -> DirectedInfinity[1], 
+            "CreationID" -> "46b55d9b-3471-410b-a9aa-3c9e825815a4", "TestID" -> 
+            "Test-4", "TestFileName" -> 
+            "C:\\Users\\sjoerds\\Workspace\\GitHub\\UnitTestFramework\\\
+Testing\\Tests\\ExampleUnitTests.wlt", "EvaluationID" -> 
+            "972253ce-30cd-4239-805f-3b6e58044ec7", "Input" -> HoldForm[
+              ExamplePaclet`PackageScope`MyFunctionInternal[5]], 
+            "ExpectedOutput" -> HoldForm[25], "ExpectedMessages" -> 
+            HoldForm[{}], "ActualOutput" -> HoldForm[25], 
+            "ActualMessages" -> {}, "AbsoluteTimeUsed" -> 
+            0``7.1505149978319915, "CPUTimeUsed" -> 0., "MemoryUsed" -> 3368, 
+            "IntermediateTestsTree" -> {}, "Outcome" -> "Success", 
+            "FailureType" -> None|>]|>, "FailureResults" -> <||>, 
+       "TestsNotEvaluatedKeys" -> {}, "TestsFailedWrongResultsKeys" -> {}, 
+       "TestsFailedWithMessagesKeys" -> {}, 
+       "TestsSucceededKeys" -> {2994915974501816222, 4520151188826811355, 
+        3259026789580861388}|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}], ",", 
+   RowBox[{"\<\"Summary\"\>", "\[Rule]", 
+    TemplateBox[<|
+     "Summary" -> 
+      TemplateBox[<|
+        "RowCount" -> 1, "ColumnCount" -> 8, "ColumnTypes" -> Grid[{{
+             Style["FileName", Bold], "String"}, {"Success", "Integer64"}, {
+            "Failure", "Integer64"}, {"PerformanceFailure", "Integer64"}, {
+            "Fixed", "Integer64"}, {"KnownIssue", "Integer64"}, {
+            "NotImplemented", "Integer64"}, {"Skipped", "Integer64"}}, 
+           Alignment -> Left], "Backend" -> "Tabular`Backend`WolframKernel", 
+         "UUID" -> "Tabular-2516a658-c98b-4c78-97f7-b436186c6b96", "Form" -> 
+         StandardForm, "Interpretable" -> True|>, "TabularSummary", 
+        BaseStyle -> (DynamicUpdating -> True)], "Main" -> TableViewBox[
+        Tabular[<|
+         "RawSchema" -> <|
+           "ColumnProperties" -> <|
+             "FileName" -> <|"ElementType" -> "String"|>, 
+              "Success" -> <|"ElementType" -> "Integer64"|>, 
+              "Failure" -> <|"ElementType" -> "Integer64"|>, 
+              "PerformanceFailure" -> <|"ElementType" -> "Integer64"|>, 
+              "Fixed" -> <|"ElementType" -> "Integer64"|>, 
+              "KnownIssue" -> <|"ElementType" -> "Integer64"|>, 
+              "NotImplemented" -> <|"ElementType" -> "Integer64"|>, 
+              "Skipped" -> <|"ElementType" -> "Integer64"|>|>, 
+            "KeyColumns" -> {"FileName"}, "Backend" -> "WolframKernel"|>, 
+          "Options" -> {}, 
+          "BackendData" -> <|"ColumnData" -> DataStructure["ColumnTable", {{
+                TabularColumn[<|
+                 "Data" -> {{3, {0, 20}, "ExampleUnitTests.wlt"}, {}, None}, 
+                  "ElementType" -> "String"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{3}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{0}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{0}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{0}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{1}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{0}, {}, None}, "ElementType" -> "Integer64"|>], 
+                
+                TabularColumn[<|
+                 "Data" -> {{0}, {}, None}, "ElementType" -> 
+                  "Integer64"|>]}}]|>|>], Expression, 
+        AppearanceElements -> {"ColumnHeaders", "ResizeArea"}, 
+        TableViewBoxAlignment -> <|
+         "ColumnsIndexed" -> {
+           1 -> Left, 2 -> Right, 3 -> Right, 4 -> Right, 5 -> Right, 6 -> 
+            Right, 7 -> Right, 8 -> Right}|>, 
+        TableViewBoxBackground -> <|
+         "ColumnsIndexed" -> {1 -> LightDarkSwitched[
+              Hue[0.611, 0.015, 0.976]]}|>, 
+        TableViewBoxFieldType -> <|
+         "ColumnsIndexed" -> {
+           1 -> String, 2 -> Number, 3 -> Number, 4 -> Number, 5 -> Number, 6 -> 
+            Number, 7 -> Number, 8 -> Number}|>, 
+        TableViewBoxHeaderStyle -> <|"Columns" -> {{"TabularPrimaryData"}}|>, 
+        TableViewBoxHeaders -> <|
+         "ColumnsIndexed" -> {
+           1 -> TemplateBox[{"\"FileName\""}, "StringTabularHeader"], 2 -> 
+            TemplateBox[{"\"Success\""}, "Integer64TabularHeader"], 3 -> 
+            TemplateBox[{"\"Failure\""}, "Integer64TabularHeader"], 4 -> 
+            TemplateBox[{"\"PerformanceFailure\""}, "Integer64TabularHeader"],
+             5 -> TemplateBox[{"\"Fixed\""}, "Integer64TabularHeader"], 6 -> 
+            TemplateBox[{"\"KnownIssue\""}, "Integer64TabularHeader"], 7 -> 
+            TemplateBox[{"\"NotImplemented\""}, "Integer64TabularHeader"], 8 -> 
+            TemplateBox[{"\"Skipped\""}, "Integer64TabularHeader"]}|>, 
+        TableViewBoxItemDisplayRules -> <|
+         "Columns" -> {{{
+             Blank[Missing] -> (MakeBoxes[#, TraditionalForm]& )}}}, 
+          "ColumnsIndexed" -> {
+           1 -> {}, 
+            2 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            3 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            4 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            5 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            6 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            7 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}, 
+            8 -> {Integer -> 
+              Function[{
+                Tabular`Typesetting`TableView`Private`val$, 
+                 Tabular`Typesetting`TableView`Private`pos$}, 
+                Tabular`NumberListFormat[
+                Tabular, "Digits" -> 0, "RemoveSign" -> Identity, 
+                 "ScientificFormQ" -> False, "SuffixFunction" -> None, 
+                 "SuffixQ" -> False, ScientificNotationThreshold -> {
+                   DirectedInfinity[-1], 
+                   DirectedInfinity[1]}][
+                Tabular`Typesetting`TableView`Private`val$]]}}|>, 
+        TableViewBoxItemSize -> <|
+         "ColumnsIndexed" -> {
+           1 -> 13, 2 -> 4, 3 -> 4, 4 -> 10, 5 -> 4, 6 -> 6, 7 -> 9, 8 -> 
+            4}|>], "ItemSizeConstraints" -> <|
+       "ColumnsIndexed" -> {
+         1 -> {3, 13}, 2 -> {3, 4}, 3 -> {3, 4}, 4 -> {3, 10}, 5 -> {3, 4}, 
+          6 -> {3, 6}, 7 -> {3, 9}, 8 -> {3, 4}}|>|>,
+     "Tabular"]}]}], 
+  "\[RightAssociation]"}]], \
+"Output",ExpressionUUID->"ee248b7e-5ebf-0148-b0ce-11ffca95b9af"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Unit testing", \
+"Section",ExpressionUUID->"6298a34b-fc34-1144-bf02-b6422878e5e5"],
+
+Cell["Run the unit tests:", \
+"Text",ExpressionUUID->"ef342aec-7ec2-a844-b945-c1337d4b37d0"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Get", "@", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Tests\>\"", 
+      ",", "\"\<UnitTestFramework.wl\>\""}], "}"}], "]"}]}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"TestReportSummary", "[", "]"}]}], "Input",
+ Background->None,ExpressionUUID->"ef3c06b5-e919-ef41-8def-6821dfb0e425"],
+
+Cell["\<\
+If any tests fail, evaluate this to inspect the failing tests in more detail:\
+\>", "Text",ExpressionUUID->"c129c1a6-787c-884a-9b6b-b4fd65b6b98c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<TestReportNotebook\>\"", "]"}], "@", 
+  "$TestReport"}]], \
+"Input",ExpressionUUID->"0f93b33e-a61e-9c43-b9b3-58f723c4dd0f"]
+}, Open  ]]
+},
+WindowSize->{1296., 573.75},
+WindowMargins->{{Automatic, 48.75}, {Automatic, 67.5}},
+PrivateNotebookOptions->{"FileOutlineCache"->False},
+ShowGroupOpener->True,
+CellLabelAutoDelete->True,
+TrackCellChangeTimes->False,
+FrontEndVersion->"15.0 for Microsoft Windows (64-bit) (May 19, 2026)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"74fac156-49f0-41f2-a95f-5c2678d92107"
+]
+
