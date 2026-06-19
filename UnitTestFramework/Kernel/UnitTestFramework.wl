@@ -394,7 +394,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 },
 	Enclose[
 		ConfirmAssert[MatchQ[file, $configPatt]];
-		
+		file //= Replace[s_?FileExistsQ :> AbsoluteFileName[s]];
 		testAssoc = If[ file =!= None,
 			Confirm @ Block[{$TestConfig},
 				res = Confirm @ getConfig[file];
@@ -427,6 +427,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		dir = testAssoc["TestDirectory"];
 
 		$TestConfig = testAssoc;
+		$TestConfig["TestConfigFile"] = file;
 
 		$TestConfig //= Query[
 			Thread[{"AbortOnFail", "SkipUnimplemented", "SkipGeneratedTests"} -> TrueQ]

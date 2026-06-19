@@ -54,20 +54,11 @@ Cell["Run unit tests for the testing framework itself:", \
 
 Cell[BoxData[
  RowBox[{"RunTests", "[", "\[IndentingNewLine]", 
-  RowBox[{
-   RowBox[{"FileNameJoin", "[", 
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Examples\>\"", 
-      ",", "\"\<Tests\>\"", ",", "\"\<TestConfig.m\>\""}], "}"}], "]"}], ",", 
-   "\[IndentingNewLine]", 
-   RowBox[{"\"\<ExampleConfigFile\>\"", " ", "->", " ", 
-    RowBox[{"FileNameJoin", "[", 
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Examples\>\"", 
-       ",", "\"\<Tests\>\"", ",", "\"\<TestConfig.m\>\""}], "}"}], "]"}]}]}], 
-  "\[IndentingNewLine]", 
+  RowBox[{"FileNameJoin", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Tests\>\"", 
+     ",", "\"\<TestConfig.m\>\""}], "}"}], "]"}], "\[IndentingNewLine]", 
   "]"}]], "Input",ExpressionUUID->"13193bc7-8102-0f4b-b91a-7e043043d22e"]
 }, Open  ]]
 },
