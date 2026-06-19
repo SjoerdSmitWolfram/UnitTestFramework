@@ -20,7 +20,7 @@ $TestConfig = <|
 	"SkipGeneratedTests" -> False,
 	"TestFileContext" -> "UnitTestFramework`TestRun`",
 	"PacletDirectory" -> Automatic,
-	"PacletContexts" -> {"ExamplePaclet`", "ExamplePaclet`PackageScope`"},
+	"PacletContexts" -> "UnitTestFramework`",
 	"TestEvaluationFunction" -> Automatic,
 	"RandomSeeding" -> 1234,
 	"TestCategorizationFunction" -> Automatic,
