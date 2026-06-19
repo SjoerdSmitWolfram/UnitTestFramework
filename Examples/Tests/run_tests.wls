@@ -1,9 +1,9 @@
 #!/usr/bin/env wolframscript
 
-(* ── Argument parsing ──────────────────────────────────────────────────── *)
-
 (* Change this if you prefer to use a local version of the framework or a version from a different branch *)
 $frameworkSource = "https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl";
+
+(* ── Argument parsing ──────────────────────────────────────────────────── *)
 
 $args = Rest @ $ScriptCommandLine;
 
