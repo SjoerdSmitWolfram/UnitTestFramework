@@ -2,6 +2,9 @@
 
 (* ── Argument parsing ──────────────────────────────────────────────────── *)
 
+(* Change this if you prefer to use a local version of the framework or a version from a different branch *)
+$frameworkSource = "https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl";
+
 $args = Rest @ $ScriptCommandLine;
 
 If[MemberQ[$args, "--usage"],
@@ -22,6 +25,7 @@ $fullQ  = MemberQ[$args, "--full" | "-f"];
 $colorQ = ! MemberQ[$args, "--no-color"];
 $dryQ   = MemberQ[$args, "--dry-run"];
 $summaryQ   = MemberQ[$args, "--summary"];
+
 
 (* ── File filter ────────────────────────────────────────────────────────── *)
 
@@ -139,11 +143,21 @@ testOpts["OnTestResult"] = Function[result,
 	]
 ];
 
-(* TODO: this path needs to be changed to a Git url once the framework is stable *)
-Get @ FileNameJoin[{$testDir, "UnitTestFramework.wl"}];
+loadResult = Null;
 
-If[ !TrueQ[$dryQ],
-	RunTests[
+If[ !TrueQ[$dryQ]
+	,
+	loadResult = Check[
+		Get[$frameworkSource],
+		$Failed
+	];
+
+	If[ FailureQ[loadResult],
+		Print["UnitTestFramework.wl unavailable. Aborting"];
+		Exit[1]
+	];
+
+	UnitTestFramework`RunTests[
 		FileNameJoin[{$testDir, "TestConfig.m"}],
 		testOpts
 	]
