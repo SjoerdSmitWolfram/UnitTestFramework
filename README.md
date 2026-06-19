@@ -18,6 +18,8 @@ This folder contains a reusable Wolfram Language test runner for paclet-style pr
 - A filtered test report suitable for CI pass/fail decisions
 - A summary view with categorized results
 
+The runner expects a paclet-style project layout with a `PacletInfo.wl` file and a `Tests/` directory containing the test configuration and `.wlt` files.
+
 ## Recommended project layout
 
 Place your project files like this:
@@ -25,8 +27,8 @@ Place your project files like this:
 ```text
 root/
 ├── PacletDir/
-    │   ├── Kernel/
-    │   │   └── ... your .wl source files
+│   ├── Kernel/
+│   │   └── ... your .wl source files
 │   └── PacletInfo.wl
 └── Tests/
     ├── TestConfig (any format that can be imported as an association)
@@ -42,10 +44,39 @@ The runner assumes all test files are under the configured `"TestDirectory"` (wh
 1. Place a `TestConfig` file in your project's `Tests/` directory.
 2. Add your unit tests as `.wlt` files under `Tests/` (subfolders are supported).
 3. Define tests using `TestCreate[...]`.
-4. Configure the `TestConfig` file as needed (for example `"PacletDirectory"`, `"PacletContexts"`, `"ReportType"`, and skip options).
-5. Load the framework and run tests by evaluating:
-  - `Get["path/to/UnitTestFramework.wl"]`
+4. Configure the `TestConfig` file as needed. It can be either a Wolfram file that defines `$TestConfig` or any other file that returns an association.
+5. If you use a Wolfram file, you can further customize the runner by defining your own test evaluation function and/or test categorization function.
+6. Load the framework and run tests by evaluating:
+  - `Get["path/to/UnitTestFramework.wl"]` (use the path https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl to load directly from GitHub)
   - ``UnitTestFramework`RunTests["path/to/Tests/TestConfig.wl"]``
+
+## Config Keys
+
+The main keys supported by `TestConfig` are:
+
+- `"AbortOnFail"`: stop after the first unexpected failure.
+- `"OnTestResult"`: callback applied to each produced test result.
+- `"ReportType"`: controls breadth of the run, for example `"Full"` versus a quicker `"Local"` run. The full test will include all tests, while a local run may skip performance tests and other long-running cases.
+- `"SkipUnimplemented"`: skip tests tagged `NotImplemented`.
+- `"TestDirectory"`: main directory containing the test files. Defaults to the directory containing the config file.
+- `"TestFiles"`: test files to run. Use `Automatic` to discover all `.wlt` files recursively under `Tests/`, or provide explicit paths relative to `"TestDirectory"`.
+- `"SkipGeneratedTests"`: skip tests tagged `GeneratedTest`.
+- `"TestFileContext"`: base `$Context` used while evaluating tests.
+- `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
+- `"PacletContexts"`: contexts to put on `$ContextPath` while running tests.
+- `"TestEvaluationFunction"`: evaluation function passed into `TestReport[..., TestEvaluationFunction -> ...]`.
+- `"RandomSeeding"`: seed used when running the tests.
+- `"TestCategorizationFunction"`: function used to label test results.
+- `"TestReportOptions"`: options forwarded to `TestReport`.
+- `"PacletInitialization"`: initialization code run before tests execute.
+
+`"TestCategorizationFunction"`, `"PacletInitialization"`, `"TestEvaluationFunction"`, `"OnTestResult"`, and `"TestReportOptions"` may contain Wolfram code. If you use a non-Wolfram config format, those values can also be given as `InputForm` strings that will be converted with `ToExpression`.
+
+`"PacletInitialization"` supports three forms:
+
+- `Automatic`: evaluates `Get[pacletContext]` using the inferred paclet context.
+- `Function[...]`: receives the fully resolved test config association.
+- `Hold[...]`: held code that is released after config initialization.
 
 ## Important conventions
 
@@ -92,6 +123,8 @@ By default this:
 - `"SkipUnimplemented"`: whether to skip tests marked as not implemented (default: `False`)
 - `"SkipGeneratedTests"`: whether to skip generated tests (default: `False`)
 - `"OnTestResult"`: callback function to handle individual test results
+
+When `"PacletContexts"` is left as `Automatic`, the runner uses the final directory name of `"PacletDirectory"` as the main paclet context. The default test contexts always include `UnitTestFramework```, `MUnit```, and `System``.
 
 ## Tagging tests with TagTest
 
