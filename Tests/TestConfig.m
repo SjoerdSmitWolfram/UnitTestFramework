@@ -20,12 +20,12 @@ $TestConfig = <|
 	"SkipGeneratedTests" -> False,
 	"TestFileContext" -> "UnitTestFramework`TestRun`",
 	"PacletDirectory" -> Automatic,
-	"PacletContexts" -> {"ExamplePaclet`", "ExamplePaclet`PackageScope`"},
+	"PacletContexts" -> "UnitTestFramework`",
 	"TestEvaluationFunction" -> Automatic,
 	"RandomSeeding" -> 1234,
 	"TestCategorizationFunction" -> Automatic,
 	"TestReportOptions" -> {},
-	"PacletInitialization" -> Automatic,
+	"PacletInitialization" -> Hold[Null], (* Don't reload the testing framework again *)
 	"TestDirectory" -> Automatic,
 	"ExampleConfigFile" -> FileNameJoin[{ParentDirectory @ DirectoryName[$InputFileName], "Examples", "Tests", "TestConfig.m"}]
 |>;
