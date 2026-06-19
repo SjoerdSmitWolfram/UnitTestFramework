@@ -2,14 +2,14 @@
 
 This folder contains a reusable Wolfram Language test runner for paclet-style projects.
 
-- Source file: `TestRunner.wl`
+- Source file: `UnitTestFramework.wl`
 - Package context: ``UnitTestFramework` ``
 - Main entry point: `RunTests[configFile]`
 - Test tagging function: `TagTest`
 
 ## What this is for
 
-`TestRunner.wl` is designed to be loaded once and configured per project via a test config file so you get:
+`UnitTestFramework.wl` is designed to be loaded once and configured per project via a test config file so you get:
 
 - Automatic discovery of `.wlt`/`.mt` test files
 - Per-test metadata tagging via `TagTest`
@@ -44,7 +44,7 @@ The runner assumes all test files are under the configured `"TestDirectory"` (wh
 3. Define tests using `TestCreate[...]`.
 4. Configure the `TestConfig` file as needed (for example `"PacletDirectory"`, `"PacletContexts"`, `"ReportType"`, and skip options).
 5. Load the framework and run tests by evaluating:
-  - `Get["path/to/TestRunner.wl"]`
+  - `Get["path/to/UnitTestFramework.wl"]`
   - ``UnitTestFramework`RunTests["path/to/Tests/TestConfig.wl"]``
 
 ## Important conventions
@@ -59,7 +59,7 @@ The runner assumes all test files are under the configured `"TestDirectory"` (wh
 
 - `Tests/TestConfig.wl`
 
-`TestRunner.wl` does not need to be copied into every project. Path resolution is based on the config file (`"TestDirectory"` defaults to that file's directory).
+`UnitTestFramework.wl` does not need to be copied into every project. Path resolution is based on the config file (`"TestDirectory"` defaults to that file's directory). Loading can be done by installing it as a paclet or by simply using `Get["path/to/UnitTestFramework.wl"]`.
 
 ## Running tests
 

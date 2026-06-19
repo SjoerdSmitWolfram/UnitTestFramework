@@ -444,7 +444,7 @@ Cell[BoxData[{
     RowBox[{"{", 
      RowBox[{
       RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<Tests\>\"", 
-      ",", "\"\<TestRunner.wl\>\""}], "}"}], "]"}]}], 
+      ",", "\"\<UnitTestFramework.wl\>\""}], "}"}], "]"}]}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{"TestReportSummary", "[", "]"}]}], "Input",
  Background->None,ExpressionUUID->"ef3c06b5-e919-ef41-8def-6821dfb0e425"],

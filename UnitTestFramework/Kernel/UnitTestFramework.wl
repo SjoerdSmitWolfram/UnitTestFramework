@@ -6,7 +6,6 @@ root/
 ├── PacletDir/                  # Paclet directory
 │   └── PacletInfo.wl
 └── Tests/                      # Unit testing directory
-    ├── TestRunner.wl           # This file
     └── TestConfig.*              # Test configuration file for the project
 
 Unit test files are expected to be of the .wlt type and should all be located in the Tests directory or any of its sub-directories. All tests should be defined using TestCreate. Do not use VerificationTest; this is an outdated way to define tests.
@@ -47,7 +46,7 @@ Description of config keys in the TestConfig file:
 
 - "PacletContexts": Contexts to load/include on $ContextPath for tests. When set to Automatic, the test runner uses the last part in the path of the "PacletDirectory" property the paclet context. If PacletContexts is a list of multiple strings, the first one should be the main context that can be used to load the paclet using Get. You can add additional contexts to be able to tests internal symbols in the paclet Note that the contexts {"UnitTestFramework`", "MUnit`", "System`"} will also be put on $ContextPath while running tests.
 
-- "TestEvaluationFunction": Function that gets passed into TestReport[..., TestEvaluationFunction -> fun]. The value Automatic uses the function TestEvaluator defined in TestRunner.wl. If you define your own test evaluation function, this function will replace the call to TestEvaluate inside of TestEvaluator. If you want to define your own TestEvaluationFunction (for example, to handle new tags not handled by TestEvaluator), do it in the Private context below.
+- "TestEvaluationFunction": Function that gets passed into TestReport[..., TestEvaluationFunction -> fun]. The value Automatic uses the function TestEvaluator defined in UnitTestFramework.wl. If you define your own test evaluation function, this function will replace the call to TestEvaluate inside of TestEvaluator. If you want to define your own TestEvaluationFunction (for example, to handle new tags not handled by TestEvaluator), do it in the Private context below.
 
 - "RandomSeeding": Seed to use for running the tests
 

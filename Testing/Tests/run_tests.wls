@@ -93,8 +93,6 @@ Print[hr[]];
 Print[""];
 
 (* ── Load ──────────────────────────────────────────────────────────────── *)
-(* Set config before Get — initVar in TestRunner.wl preserves pre-set values *)
-
 testOpts = <||>;
 testOpts["ReportType"] = $mode;
 If[ ListQ[$resolvedFiles],
@@ -142,7 +140,7 @@ testOpts["OnTestResult"] = Function[result,
 ];
 
 (* TODO: this path needs to be changed to a Git url once the framework is stable *)
-Get @ FileNameJoin[{$testDir, "TestRunner.wl"}];
+Get @ FileNameJoin[{$testDir, "UnitTestFramework.wl"}];
 
 If[ !TrueQ[$dryQ],
 	RunTests[
