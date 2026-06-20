@@ -12,21 +12,25 @@ Begin["`Private`"]
 
 
 $TestConfig = <|
+	(* The paclet related properties are the most important ones to check when setting up a new project *)
+	"PacletContexts" -> Automatic,
+	"PacletDirectory" -> Automatic,
+	"PacletInitialization" -> Automatic,
+	
+	"TestDirectory" -> Automatic,
+	"TestFiles" -> Automatic,
+
 	"AbortOnFail" -> False,
 	"OnTestResult" -> Automatic,
 	"ReportType" -> "Full",
 	"SkipUnimplemented" -> False,
-	"TestFiles" -> Automatic,
 	"SkipGeneratedTests" -> False,
-	"TestFileContext" -> "UnitTestFramework`TestRun`",
-	"PacletDirectory" -> Automatic,
-	"PacletContexts" -> {"ExamplePaclet`", "ExamplePaclet`PackageScope`"},
+	
 	"TestEvaluationFunction" -> Automatic,
 	"RandomSeeding" -> 1234,
 	"TestCategorizationFunction" -> Automatic,
 	"TestReportOptions" -> {},
-	"PacletInitialization" -> Automatic,
-	"TestDirectory" -> Automatic
+	"TestFileContext" -> Automatic
 |>;
 
 

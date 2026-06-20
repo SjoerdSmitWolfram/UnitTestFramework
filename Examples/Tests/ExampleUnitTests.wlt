@@ -20,7 +20,11 @@ TestCreate[
 ]
 
 TestCreate[
-	MyFunctionInternal[5]
+	(* 
+		If you want to avoid having to name internal symbols by their fully qualified name, add the internal context to the "PacletContexts" 
+		property in the TestConfig file.
+	*)
+	ExamplePaclet`PackageScope`MyFunctionInternal[5]
 	,
 	25
 	,
@@ -100,7 +104,7 @@ TestCreate[
 
 (* Generated tests can be globally skipped via SkipGeneratedTests. *)
 TestCreate[
-	MyFunctionInternal[10]
+	ExamplePaclet`PackageScope`MyFunctionInternal[10]
 	,
 	100
 	,
