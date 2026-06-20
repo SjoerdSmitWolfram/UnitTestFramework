@@ -48,7 +48,7 @@ The runner assumes all test files are under the configured `"TestDirectory"` (wh
 5. If you use a Wolfram file, you can further customize the runner by defining your own test evaluation function and/or test categorization function.
 6. Load the framework and run tests by evaluating:
   - `Get["path/to/UnitTestFramework.wl"]` (use the path https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl to load directly from GitHub)
-  - ``UnitTestFramework`RunTests["path/to/Tests/TestConfig.wl"]``
+  - ``UnitTestFramework`RunTests["path/to/Tests/TestConfig.m"]``
 
 ## Config Keys
 
@@ -88,16 +88,18 @@ The main keys supported by `TestConfig` are:
 
 `TestConfig` should live in each target project's test root, typically:
 
-- `Tests/TestConfig.wl`
+- `Tests/TestConfig.m`
 
-`UnitTestFramework.wl` does not need to be copied into every project. Path resolution is based on the config file (`"TestDirectory"` defaults to that file's directory). Loading can be done by installing it as a paclet or by simply using `Get["path/to/UnitTestFramework.wl"]`.
+`UnitTestFramework.wl` does not need to be copied into every project. Path resolution is based on the config file (`"TestDirectory"` defaults to that file's directory). Loading can be done by installing it as a paclet or by simply using `Get["path/to/UnitTestFramework.wl"]`. 
+
+The example paclet in this repository (`Examples/ExamplePaclet`) has a `Tests/` folder with a `TestConfig.m` file and some example `.wlt` files. It also contains an example test runner script `run_tests.wls` that demonstrates how to run the tests from the command line. You can use that as a template for your own project, but note that these files may need to be modified to match the requirements for your specific project.
 
 ## Running tests
 
 ### Default run
 
 ```wl
-UnitTestFramework`RunTests["path/to/Tests/TestConfig.wl"]
+UnitTestFramework`RunTests["path/to/Tests/TestConfig.m"]
 ```
 
 By default this:
