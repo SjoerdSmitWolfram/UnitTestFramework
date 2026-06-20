@@ -1,6 +1,8 @@
 (* 
 	This file contains all of the user-customizable parts of the UnitTestFramework. RunTests expects to find this file in the Tests folder.
 	This file should either have a definition of the UnitTestFramework`$TestConfig variable or it should just return an association.
+
+	The pre-defined properties in this file should work for most standard projects without further modification.
 *)
 
 BeginPackage["UnitTestFramework`"]
