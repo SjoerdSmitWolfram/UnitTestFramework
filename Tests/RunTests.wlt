@@ -2,7 +2,7 @@ Clear[query, exampleConfigFile];
 
 query[obj_?AssociationQ] := Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
-	"Summary" -> (Normal @ #[RowKey["ExampleUnitTests.wlt"]] &),
+	"Summary" -> Normal,
 	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
 	"TestConfiguration" -> Keys
 }] @ obj;
@@ -23,8 +23,12 @@ TestCreate[
 	Association[
 		"ReportSucceeded" -> True,
 		"TestReportObject" -> True, 
-		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
+		"Summary" -> {
+			Association[
+				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
+				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+			]
+		},
 		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType", 
@@ -44,8 +48,12 @@ TestCreate[
 	Association[
 		"ReportSucceeded" -> True,
 		"TestReportObject" -> True, 
-		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
+		"Summary" -> {
+			Association[
+				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
+				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+			]
+		},
 		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
@@ -64,9 +72,12 @@ TestCreate[
 	Association[
 		"ReportSucceeded" -> True,
 		"TestReportObject" -> True,
-		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0,
-			"PerformanceFailure" -> 0, "Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 3
-		],
+		"Summary" -> {
+			Association[
+				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
+				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 3
+			]
+		},
 		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType",
@@ -85,9 +96,12 @@ TestCreate[
 	Association[
 		"ReportSucceeded" -> True,
 		"TestReportObject" -> True,
-		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 7, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
-			 "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 4
-		],
+		"Summary" -> {
+			Association[
+				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 7, "Failure" -> 0, "PerformanceFailure" -> 0,
+				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 4
+			]
+		},
 		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType",
