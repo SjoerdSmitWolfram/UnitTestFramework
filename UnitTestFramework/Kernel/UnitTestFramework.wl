@@ -236,7 +236,7 @@ TestEvaluator[test_TestObject, meta_] := Which[
 		]
 ];
 
-$categorizations = {"Skipped", "Fixed", "Success", "KnownIssue", "NotImplemented", "PerformanceFailure", "Failure"};
+$categorizations = {"Success", "Failure", "PerformanceFailure", "Fixed", "KnownIssue", "NotImplemented", "Skipped"};
 
 CategorizeTestResult[obj_TestObject] := iCategorizeTestResult[obj["Outcome"], obj["MetaInformation"], obj];
 
@@ -607,9 +607,12 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			files
 		];
 
-		$GroupedResults = GroupBy[
-			$TestResults["Results"],
-			$TestConfig["TestCategorizationFunction"]
+		$GroupedResults = Join[
+			Association @ Map[# -> {}&, $categorizations],
+			GroupBy[
+				$TestResults["Results"],
+				$TestConfig["TestCategorizationFunction"]
+			]
 		];
 
 		$TestReport = CombineReports @ Catenate @ KeyTake[
