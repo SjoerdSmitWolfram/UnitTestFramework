@@ -36,7 +36,9 @@ Description of config keys in the TestConfig file:
 
 - "TestDirectory": Main directory of the test files. Defaults to the directory of the TestConfig file.
 
-- "TestFiles": Which .wlt files to run. Use Automatic to discover all tests under the Tests directory recursively, or provide an explicit list of file paths relative to "TestDirectory".
+- "TestFiles": Which .wlt files to run. Use All to discover all tests under the Tests directory recursively using the "TestFilePattern" property, or provide an explicit list of file paths relative to "TestDirectory".
+
+- "TestFilePattern": File pattern to use to detect test files to run. Only has any effect if "TestFiles" -> All is used. 
 
 - "SkipGeneratedTests": If True, tests tagged with "GeneratedTest" are skipped.
 
@@ -339,7 +341,8 @@ $TestConfigDefaults = <|
 	"OnTestResult" -> Automatic,
 	"ReportType" -> "Full",
 	"SkipUnimplemented" -> False,
-	"TestFiles" -> Automatic,
+	"TestFiles" -> All,
+	"TestFilePattern" -> Automatic,
 	"SkipGeneratedTests" -> False,
 	"TestFileContext" -> "UnitTestFramework`TestRun`",
 	"PacletDirectory" -> Automatic,
@@ -426,6 +429,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	file = f,
 	initialVals = Association[assoc],
 	testAssoc = <||>,
+	testFiles, namedFiles, filePattern,
 	dir, res
 },
 	Enclose[
@@ -467,31 +471,21 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		$TestConfig //= Query[
 			Thread[{"AbortOnFail", "SkipUnimplemented", "SkipGeneratedTests"} -> TrueQ]
 		];
-		$TestConfig //= Query[
-			{"OnTestResult" -> Replace[Automatic -> Function[Null]]}
+		$TestConfig["OnTestResult"] //= Replace[Automatic -> Function[Null]];
+		$TestConfig["TestReportOptions"] //= Function[
+			Replace[
+				Association @ Flatten[{#}],
+				{
+					a_?AssociationQ :> Normal[a],
+					_ :> {}
+				}
+			]
 		];
-		$TestConfig //= Query[
-			{
-				"TestReportOptions" -> Function[
-					Replace[
-						Association @ Flatten[{#}],
-						{
-							a_?AssociationQ :> Normal[a],
-							_ :> {}
-						}
-					]
-				]
-			}
-		];
-		$TestConfig //= Query[
-			{"TestEvaluationFunction" -> Replace[Automatic -> TestEvaluate]}
-		];
-		$TestConfig //= Query[
-			{"TestCategorizationFunction" -> Replace[Automatic -> CategorizeTestResult]}
-		];
-		$TestConfig //= Query[
-			{"TestFileContext" -> Replace[Automatic -> "UnitTestFramework`TestRun`"]}
-		];
+		$TestConfig["TestEvaluationFunction"] //= Replace[Automatic -> TestEvaluate];
+		$TestConfig["TestCategorizationFunction"] //= Replace[Automatic -> CategorizeTestResult];
+
+		$TestConfig["TestFileContext"] //= Replace[Automatic -> "UnitTestFramework`TestRun`"];
+		$TestConfig["TestFilePattern"] //= Replace[Automatic -> "*.wlt" | "*.mt"];
 
 		If[ $TestConfig["PacletDirectory"] === Automatic,
 			$TestConfig["PacletDirectory"] = Confirm @ pacletDirFind[ParentDirectory[dir]]
@@ -502,21 +496,29 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		PacletDataRebuild[];
 		PacletDirectoryLoad @ $TestConfig["PacletDirectory"];
 		
-		Switch[$TestConfig["TestFiles"],
-			Automatic,
-				$TestConfig["TestFiles"] = FileNames["*.wlt" | "*.mt", dir, Infinity]
+		namedFiles = $TestConfig["TestFiles"];
+		filePattern = $TestConfig["TestFilePattern"];
+
+		testFiles = Switch[namedFiles,
+			All,
+				FileNames[filePattern, dir, Infinity]
 			,
 			_,
-				$TestConfig["TestFiles"] = WithCleanup[
-					SetDirectory[dir],
-					ExpandFileName /@ Flatten[{$TestConfig["TestFiles"]}],
-					ResetDirectory[]
+				Block[{$Path = {}},
+					WithCleanup[
+						SetDirectory[dir],
+						ExpandFileName /@ Flatten[{namedFiles}],
+						ResetDirectory[]
+					]
 				]
 		];
+		
 		ConfirmAssert @ And[
-			MatchQ[$TestConfig["TestFiles"], {__}],
-			AllTrue[$TestConfig["TestFiles"], FileExistsQ]
+			MatchQ[testFiles, {__}],
+			AllTrue[testFiles, FileExistsQ]
 		];
+		$TestConfig["TestFiles"] = testFiles;
+
 		If[ $TestConfig["PacletContexts"] === Automatic,
 			$TestConfig["PacletContexts"] = DeleteDuplicates @ Flatten[{
 				ConfirmMatch[pacletContexts[$TestConfig["PacletObject"]], {__String}]
