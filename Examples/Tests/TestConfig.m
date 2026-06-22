@@ -26,8 +26,7 @@ $TestConfig = <|
 	"AbortOnFail" -> False,
 	"OnTestResult" -> Automatic,
 	"ReportType" -> "Full",
-	"SkipUnimplemented" -> False,
-	"SkipGeneratedTests" -> False,
+	"SkipTags" -> None,
 	
 	"TestEvaluationFunction" -> Automatic,
 	"RandomSeeding" -> 1234,

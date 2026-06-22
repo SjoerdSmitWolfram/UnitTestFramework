@@ -59,11 +59,10 @@ The main keys supported by `TestConfig` are:
 - `"AbortOnFail"`: stop after the first unexpected failure.
 - `"OnTestResult"`: callback applied to each produced test result.
 - `"ReportType"`: controls breadth of the run, for example `"Full"` versus a quicker `"Local"` run. The full test will include all tests, while a local run may skip performance tests and other long-running cases.
-- `"SkipUnimplemented"`: skip tests tagged `NotImplemented`.
+- `"SkipTags"`: List of tags to skip. Default value is `None`.
 - `"TestDirectory"`: main directory containing the test files. Defaults to the directory containing the config file.
 - `"TestFiles"`: test files to run. Use `All` to discover all test files recursively under `Tests/`, or provide explicit paths relative to `"TestDirectory"`.
 - `"TestFilePattern"`: File pattern to use to detect test files to run. Only has any effect if `"TestFiles" -> All`  is used. Defaults to `"*.wlt" | "*.mt"`.
-- `"SkipGeneratedTests"`: skip tests tagged `GeneratedTest`.
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
 - `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the contexts defined in `PacletInfo.wl`.
@@ -123,21 +122,7 @@ By default this:
   - `"TestConfiguration"`: the fully resolved test configuration association
   - `"$TestSuiteAbortedQ"`: whether the test suite was aborted mid-run (e.g., if a failure occured while `"AbortOnFail"` is `True`)
 
-### Useful options
-
-`RunTests` supports options such as:
-
-- `"PacletDirectory"`: path to paclet for context loading (default: auto-detected from nearby `PacletInfo.wl`)
-- `"PacletContexts"`: context path to use while running tests (default: `Automatic` to infer from paclet directory name)
-- `"PacletInitialization"`: custom code to initialize the paclet. Should be a `Function` (which will be called with the paclet directory as an argument) or a `Hold` expression (which wil be released).
-- `"AbortOnFail"`: whether to stop the test suite on the first unexpected failure (default: `False`)
-- `"ReportType"`: for example `"Local"` vs `"Full"` suite behavior
-- `"TestReportOptions"`: options to pass to `TestReport`
-- `"SkipUnimplemented"`: whether to skip tests marked as not implemented (default: `False`)
-- `"SkipGeneratedTests"`: whether to skip generated tests (default: `False`)
-- `"OnTestResult"`: callback function to handle individual test results
-
-When `"PacletContexts"` is left as `Automatic`, the runner uses the final directory name of `"PacletDirectory"` as the main paclet context. The default test contexts always include `UnitTestFramework```, `MUnit```, and `System``.
+`RunTests` can be called with an association of options to override values in the config file. 
 
 ## Tagging tests with TagTest
 

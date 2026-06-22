@@ -32,15 +32,13 @@ Description of config keys in the TestConfig file:
 - "ReportType": Controls test breadth. Use "Full" for full suite behavior, including performance/full-report-only tests; use other values (for example,
 	local runs) to skip those heavier tests.
 
-- "SkipUnimplemented": If True, tests tagged with "NotImplemented" are skipped instead of being executed.
+- "SkipTags": Tags that should be skipped. Tests tagged "Skip" will always be skipped.
 
 - "TestDirectory": Main directory of the test files. Defaults to the directory of the TestConfig file.
 
 - "TestFiles": Which .wlt files to run. Use All to discover all tests under the Tests directory recursively using the "TestFilePattern" property, or provide an explicit list of file paths relative to "TestDirectory".
 
 - "TestFilePattern": File pattern to use to detect test files to run. Only has any effect if "TestFiles" -> All is used. 
-
-- "SkipGeneratedTests": If True, tests tagged with "GeneratedTest" are skipped.
 
 - "TestFileContext": Base $Context used while evaluating tests. Each test file gets a unique sub-context under this value to isolate helper symbols defined in the test file.
 
@@ -189,13 +187,9 @@ toTagAssociation[tags___] := Association[
 
 skipTestQ[meta_, test_] /; BooleanQ[meta["Skip"]] := meta["Skip"];
 skipTestQ[meta_, test_] := Or[
-	And[
-		TrueQ[$TestConfig["SkipGeneratedTests"]],
-		TrueQ @ meta["GeneratedTest"]
-	],
-	And[
-		TrueQ[$TestConfig["SkipUnimplemented"]],
-		TrueQ @ meta["NotImplemented"]
+	AnyTrue[
+		Keys[$TestConfig["SkipTags"]],
+		TrueQ @ meta[#]&
 	],
 	And[
 		(* Only do performance test in the full report *)
@@ -239,7 +233,7 @@ TestEvaluator[test_TestObject, meta_] := Which[
 		]
 ];
 
-$categorizations = {"Success", "Failure", "PerformanceFailure", "Fixed", "KnownIssue", "NotImplemented", "Skipped"};
+$categorizations = {"Success", "Failure", "PerformanceFailure", "Implemented", "Fixed", "KnownIssue", "NotImplemented", "Skipped"};
 
 CategorizeTestResult[obj_TestObject] := iCategorizeTestResult[obj["Outcome"], obj["MetaInformation"], obj];
 
@@ -340,10 +334,9 @@ $TestConfigDefaults = <|
 	"AbortOnFail" -> False,
 	"OnTestResult" -> Automatic,
 	"ReportType" -> "Full",
-	"SkipUnimplemented" -> False,
 	"TestFiles" -> All,
 	"TestFilePattern" -> Automatic,
-	"SkipGeneratedTests" -> False,
+	"SkipTags" -> None,
 	"TestFileContext" -> "UnitTestFramework`TestRun`",
 	"PacletDirectory" -> Automatic,
 	"PacletContexts" -> Automatic,
@@ -468,9 +461,17 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		$TestConfig = testAssoc;
 		$TestConfig["TestConfigFile"] = file;
 
-		$TestConfig //= Query[
-			Thread[{"AbortOnFail", "SkipUnimplemented", "SkipGeneratedTests"} -> TrueQ]
+		$TestConfig["AbortOnFail"] //= TrueQ;
+		$TestConfig["SkipTags"] //= Replace[
+			{
+				None -> <||>,
+				s_String :> <|s -> True|>,
+				l_List :> AssociationThread[l, True],
+				a_?AssociationQ :> Select[a, TrueQ]
+			}
 		];
+		ConfirmAssert[AssociationQ @ $TestConfig["SkipTags"]];
+		
 		$TestConfig["OnTestResult"] //= Replace[Automatic -> Function[Null]];
 		$TestConfig["TestReportOptions"] //= Function[
 			Replace[
