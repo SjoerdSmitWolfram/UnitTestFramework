@@ -29,7 +29,7 @@ TestCreate[
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType", 
 			"SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
-			"TestFileContext",  "TestFiles", "TestReportOptions"
+			"TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
 		},
 		"$TestSuiteAbortedQ" -> False
 	]
@@ -50,7 +50,7 @@ TestCreate[
 		"TestConfiguration" -> {
 			"AbortOnFail", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
 			"RandomSeeding", "ReportType", "SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", 
-			"TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFiles", "TestReportOptions"
+			"TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
 		},
 		"$TestSuiteAbortedQ" -> False
 	]

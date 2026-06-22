@@ -20,7 +20,8 @@ $TestConfig = <|
 	"PacletInitialization" -> Automatic,
 	
 	"TestDirectory" -> Automatic,
-	"TestFiles" -> Automatic,
+	"TestFiles" -> All,
+	"TestFilePattern" -> Automatic,
 
 	"AbortOnFail" -> False,
 	"OnTestResult" -> Automatic,
