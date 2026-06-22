@@ -158,10 +158,7 @@ If[ !TrueQ[$dryQ]
 		Exit[1]
 	];
 
-	$testResult = UnitTestFramework`RunTests[
-		FileNameJoin[{$testDir, "TestConfig.m"}],
-		testOpts
-	]
+	$testResult = UnitTestFramework`RunTests[$testDir, testOpts]
 ];
 
 If[$progressCol > 0, Print["\n"]];
