@@ -1,7 +1,7 @@
 query = Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
 	"Summary" -> (Normal @ #[RowKey["ExampleUnitTests.wlt"]] &),
-	"TestConfiguration" -> Keys/*Sort
+	"TestConfiguration" -> Keys
 }];
 
 exampleConfigFile = FileNameJoin[{

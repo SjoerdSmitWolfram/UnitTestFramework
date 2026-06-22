@@ -618,7 +618,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		<|
 			"TestReportObject" -> $TestReport,
 			"Summary" -> TestReportSummary[$TestResults],
-			"TestConfiguration" -> $TestConfig
+			"TestConfiguration" -> KeySort @ $TestConfig
 		|>
 	]
 ];
