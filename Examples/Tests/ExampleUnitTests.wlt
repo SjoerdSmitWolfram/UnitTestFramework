@@ -102,7 +102,7 @@ TestCreate[
 	TestID -> "Skip-ExplicitFalse"
 ] // TagTest["Skip" -> False, "GeneratedTest"]
 
-(* Generated tests can be globally skipped via SkipGeneratedTests. *)
+(* Generated tests can be globally skipped using the SkipTags property. *)
 TestCreate[
 	ExamplePaclet`PackageScope`MyFunctionInternal[10]
 	,

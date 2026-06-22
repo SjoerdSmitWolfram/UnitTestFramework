@@ -84,6 +84,7 @@ $TestSuiteAbortedQ::usage = "$TestSuiteAbortedQ is a boolean that gets set to Fa
 
 $TestTags::usage = "$TestTags is an association with descriptions of the tags that can be used in TagTest."
 
+$TestFileContexts::usage = "$TestFileContexts holds all of the contexts that were used during generation of the report. It can be used to make test results easier to read."
 
 GeneralUtilities`SetUsage[TagTest,
 	"TagTest[tags$1, tag$2, $$][test$] attaches metadata tags to a test expression. See $TestTags for details about the tags that can be used.
@@ -127,6 +128,10 @@ Possible categories are:
 
 GeneralUtilities`SetUsage[CombineReports,
 	"CombineReports[res$1, res$2, $$] combines test results into a single TestReportObject. Each res$i can be a TestObject, TestReportObject or a list of such."
+];
+
+GeneralUtilities`SetUsage[LoadTestContexts,
+	"LoadTestContexts[] restores all test file contexts to the $ContextPath to make test results more readable when printed."
 ];
 
 Begin["`Private`"]
@@ -604,10 +609,11 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	configFile = conf,
 	assoc = a,
 	i = 0,
-	files,
-	$fileContext, 
 	init = OptionValue["PacletInitialization"],
-	fullTestContextPath
+	usedContexts = <||>,
+	files,
+	$fileContext,
+	fullTestContextPath	
 },
 	Enclose[
 		Confirm @ loadTestConfigAndInitialize[configFile, assoc];
@@ -627,6 +633,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 					,
 					BlockRandom[
 						$fileContext = fileContext[#];
+						usedContexts[$fileContext] = True;
 						ClearAll[Evaluate[$fileContext <> "`*"]];
 						Block[{
 								$Context = $fileContext,
@@ -658,6 +665,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			{"Success", "Fixed", "Implemented", "Failure", "PerformanceFailure"}
 		];
 		$GroupedResults //= Map[CombineReports];
+		$TestFileContexts = DeleteDuplicates @ Join[Keys @ usedContexts, fullTestContextPath];
 		<|
 			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
@@ -676,12 +684,17 @@ RunTests[___] := $Failed;
 
 (* ================ RunTests End ================ *)
 
+LoadTestContexts[] /; ListQ[$TestFileContexts] := (
+	$ContextPath = DeleteDuplicates @ Join[$TestFileContexts, $ContextPath]
+);
 
 PostTestCleanUp[] := Module[{
-	syms = Names[$TestConfig["TestFileContext"] ~~ ___]
+	contexts = Complement[$TestFileContexts, $defaultTestContexts],
+	syms
 },
+	syms = Names[Alternatives @@ contexts ~~ ___];
 	ClearAll @@ syms;
-	$ContextPath = DeleteCases[$ContextPath, _String?(StringStartsQ[$TestConfig["TestFileContext"]])]
+	$ContextPath = DeleteCases[$ContextPath, Alternatives @@ contexts]
 ];
 
 initVar[$TestResults, CombineReports[]];
