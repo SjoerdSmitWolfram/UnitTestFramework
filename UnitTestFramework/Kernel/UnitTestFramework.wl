@@ -391,13 +391,14 @@ getConfig[file_, ext_] := Module[{
 loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	file = f,
 	initialVals = Association[assoc],
-	testAssoc, dir, res
+	testAssoc = <||>,
+	dir, res
 },
 	Enclose[
 		ConfirmAssert[MatchQ[file, $configPatt]];
 		file //= Replace[s_?FileExistsQ :> AbsoluteFileName[s]];
-		testAssoc = If[ file =!= None,
-			Confirm @ Block[{$TestConfig},
+		If[ file =!= None,
+			testAssoc = Confirm @ Block[{$TestConfig},
 				res = Confirm @ getConfig[file];
 				Which[
 					(* If $TestConfig was defined in the file, use that definition *)
@@ -409,8 +410,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 					True,
 						$Failed
 				]
-			],
-			<||>
+			]
 		];
 		testAssoc = Merge[
 			{
