@@ -20,6 +20,7 @@ TestCreate[
 	]
 	,
 	Association[
+		"ReportSucceeded" -> True,
 		"TestReportObject" -> True, 
 		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
@@ -27,7 +28,8 @@ TestCreate[
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType", 
 			"SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
 			"TestFileContext",  "TestFiles", "TestReportOptions"
-		}
+		},
+		"$TestSuiteAbortedQ" -> False
 	]
 	,
 	TestID->"TestReport-1"
@@ -38,6 +40,7 @@ TestCreate[
 	query[RunTests[None, "TestDirectory" -> DirectoryName @ exampleConfigFile]]
 	,
 	Association[
+		"ReportSucceeded" -> True,
 		"TestReportObject" -> True, 
 		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
@@ -45,7 +48,8 @@ TestCreate[
 			"AbortOnFail", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
 			"RandomSeeding", "ReportType", "SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", 
 			"TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFiles", "TestReportOptions"
-		}
+		},
+		"$TestSuiteAbortedQ" -> False
 	]
 	,
 	TestID->"TestReport-2"

@@ -142,6 +142,7 @@ testOpts["OnTestResult"] = Function[result,
 ];
 
 loadResult = Null;
+$testResult = <||>;
 
 If[ !TrueQ[$dryQ]
 	,
@@ -155,7 +156,7 @@ If[ !TrueQ[$dryQ]
 		Exit[1]
 	];
 
-	UnitTestFramework`RunTests[
+	$testResult = UnitTestFramework`RunTests[
 		FileNameJoin[{$testDir, "TestConfig.m"}],
 		testOpts
 	]
@@ -163,9 +164,9 @@ If[ !TrueQ[$dryQ]
 
 If[$progressCol > 0, Print["\n"]];
 
-If[MatchQ[UnitTestFramework`$TestResults, _TestReportObject],
+If[MatchQ[$testResult["TestReportObject"], _TestReportObject],
 	If[!$dryQ || !FileExistsQ["last_test_run.wxf"],
-		Export["last_test_run.wxf", UnitTestFramework`$TestResults]
+		Export["last_test_run.wxf", $testResult["TestReportObject"]]
 	]
 ];
 
@@ -174,12 +175,12 @@ If[And[
 		FileExistsQ["last_test_run.wxf"],
 		MatchQ[tmp = Import["last_test_run.wxf"], _TestReportObject]
 	],
- 	UnitTestFramework`$TestResults = tmp;
+ 	$testResult["TestReportObject"] = tmp;
 ]
 
 (* ── Count results ─────────────────────────────────────────────────────── *)
 
-$summary = UnitTestFramework`TestReportSummary[];
+$summary = $testResult["Summary"];
 $groupedResults = UnitTestFramework`$GroupedResults;
 countOf[key_] := AggregateRows[$summary, {"Total" -> (Total[#[key]] &)}][[1, "Total"]];
 
@@ -328,7 +329,7 @@ If[Length[$failures] > 0 && !$summaryQ,
 $totalFailed = $nFail + $nPerfFail;
 
 Print[hr[]];
-If[$totalFailed === 0,
+If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
 	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccess] <> " test(s) passed"],
 	Print[c[StandardRed,   Bold, " FAILED "] <> "  " <>
 		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccess] <> " passed"]
