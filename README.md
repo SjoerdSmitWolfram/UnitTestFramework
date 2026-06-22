@@ -65,7 +65,7 @@ The main keys supported by `TestConfig` are:
 - `"SkipGeneratedTests"`: skip tests tagged `GeneratedTest`.
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
-- `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the paclet context inferred from the paclet directory name and any contexts defined in `PacletInfo.wl`.
+- `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the contexts defined in `PacletInfo.wl`.
 - `"TestEvaluationFunction"`: evaluation function that is used inside `TestEvaluator`, which is the default handler for test evaluation in UnitTestFramework. If you want to circumvent `TestEvaluator` altogether, use the `"TestReportOptions"` property to pass a custom `"TestEvaluationFunction"` to `TestReport`.
 - `"RandomSeeding"`: seed used when running the tests.
 - `"TestCategorizationFunction"`: function used to label test results.

@@ -485,8 +485,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		];
 		If[ $TestConfig["PacletContexts"] === Automatic,
 			$TestConfig["PacletContexts"] = DeleteDuplicates @ Flatten[{
-				FileNameTake[$TestConfig["PacletDirectory"]] <> "`",
-				pacletContexts[$TestConfig["PacletObject"]]
+				ConfirmMatch[pacletContexts[$TestConfig["PacletObject"]], {__String}]
 			}]
 		];
 		$TestConfig["PacletContexts"] = ConfirmMatch[
