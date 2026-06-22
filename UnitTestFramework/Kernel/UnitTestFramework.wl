@@ -102,6 +102,7 @@ TestReportSummary[] returns the summary of the most recently executed test repor
 GeneralUtilities`SetUsage[RunTests,
 	"RunTests[file$] runs unit tests defined by the key-value data in config file file$. Returns an association with a TestReportObject and a test summary table.
 RunTests[file$, rules$] overrides properties in the config file with other values.
+RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a TestConfig file in that directory. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
 RunTests[None, rules$] takes all configuration directly from rules$."
 ];
 
@@ -388,6 +389,39 @@ getConfig[file_, ext_] := Module[{
 ];
 
 
+loadTestConfigAndInitialize[dir_?DirectoryQ, assoc_] := Module[{
+	configFiles = FileNames["testconfig*", dir, IgnoreCase -> Automatic],
+	selected,
+	selectedFile
+},
+	selectedFile = Switch[ Length[configFiles],
+		0,
+			Message[RunTests::noConfig, dir];
+			None
+		,
+		1,
+			First[configFiles],
+		2,
+			selected = ChoiceDialog[
+				StringRiffle[
+					{
+						{"Multiple test config files detected in test directory. Please choose which one to run:"},
+						Splice @ Thread[{Range @ Length[configFiles], "-", Map[FileNameTake, configFiles]}]
+					}
+				] <> "\n",
+				Range @ Length[configFiles]
+			];
+			If[ IntegerQ[selected],
+				configFiles[[selected]],
+				None
+			]
+	];
+	loadTestConfigAndInitialize[
+		selectedFile,
+		Append[assoc, "TestDirectory" -> dir]
+	]
+];
+
 loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	file = f,
 	initialVals = Association[assoc],
@@ -559,6 +593,7 @@ $configPatt = None | _?FileExistsQ;
 (* ================ RunTests Start ================ *)
 
 RunTests::pacletDir = "Paclet directory could not be located.";
+RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite."
 
 RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	$TestConfig,
