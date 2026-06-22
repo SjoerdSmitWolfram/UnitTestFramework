@@ -1,5 +1,7 @@
 #!/usr/bin/env wolframscript
 
+$testDir = DirectoryName @ $InputFileName;
+
 (* Change this if you prefer to use a local version of the framework or a version from a different branch *)
 $frameworkSource = "https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl";
 
@@ -28,8 +30,6 @@ $summaryQ   = MemberQ[$args, "--summary"];
 
 
 (* ── File filter ────────────────────────────────────────────────────────── *)
-
-$testDir = DirectoryName @ $InputFileName;
 
 resolveFileArg[arg_String] := Module[{rel = FileNameJoin[{$testDir, arg}]},
 	Which[
@@ -194,6 +194,7 @@ $nImpl     = countOf["Implemented"];
 $nKnown    = countOf["KnownIssue"];
 $nSkipped  = countOf["Skipped"];
 $nNotImpl  = countOf["NotImplemented"];
+$nSuccessTotal = $nSuccess + $nFixed + $nImpl
 
 (* ── Print counts ──────────────────────────────────────────────────────── *)
 
@@ -332,9 +333,9 @@ $totalFailed = $nFail + $nPerfFail;
 
 Print[hr[]];
 If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
-	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccess] <> " test(s) passed"],
+	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccessTotal] <> " test(s) passed"],
 	Print[c[StandardRed,   Bold, " FAILED "] <> "  " <>
-		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccess] <> " passed"]
+		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"]
 ];
 Print[""];
 
