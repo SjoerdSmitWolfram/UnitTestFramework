@@ -617,10 +617,12 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			(* Return only the outright failures and successes for the purposes of automated testing *)
 			{"Success", "Fixed", "Implemented", "Failure", "PerformanceFailure"}
 		];
+		$GroupedResults //= Map[CombineReports];
 		<|
 			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
 			"Summary" -> TestReportSummary[$TestResults],
+			"GroupedResults" -> $GroupedResults,
 			"TestConfiguration" -> KeySort @ $TestConfig,
 			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ
 		|>
