@@ -63,7 +63,7 @@ The main keys supported by `TestConfig` are:
 - `"SkipGeneratedTests"`: skip tests tagged `GeneratedTest`.
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
-- `"PacletContexts"`: contexts to put on `$ContextPath` while running tests.
+- `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the paclet context inferred from the paclet directory name and any contexts defined in `PacletInfo.wl`.
 - `"TestEvaluationFunction"`: evaluation function passed into `TestReport[..., TestEvaluationFunction -> ...]`.
 - `"RandomSeeding"`: seed used when running the tests.
 - `"TestCategorizationFunction"`: function used to label test results.
@@ -77,6 +77,10 @@ The main keys supported by `TestConfig` are:
 - `Automatic`: evaluates `Get[pacletContext]` using the inferred paclet context.
 - `Function[...]`: receives the fully resolved test config association.
 - `Hold[...]`: held code that is released after config initialization.
+
+As part of the initialization, the runner will also set `$TestConfig` to the fully resolved config association and add the following properties:
+- `"TestConfigFile"`: the absolute path to the config file.
+- `"PacletObject"`: the symbolic representation of the `PacletInfo.wl` file.
 
 ## Important conventions
 
