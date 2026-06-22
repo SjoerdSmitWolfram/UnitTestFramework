@@ -20,6 +20,8 @@ This folder contains a reusable Wolfram Language test runner for paclet-style pr
 
 The runner expects a paclet-style project layout with a `PacletInfo.wl` file and a `Tests/` directory containing the test configuration and `.wlt` files.
 
+This repository also contains a small example paclet [`Examples/ExamplePaclet`](Examples/ExamplePaclet) with a `Tests/` folder and a `TestConfig.m` file, along with an example `.wlt` file and a test runner script [`run_tests.wls`](Examples/Tests/run_tests.wls) that demonstrates how to run the tests from the command line.
+
 ## Recommended project layout
 
 Place your project files like this:
@@ -116,6 +118,7 @@ By default this:
   - `"ReportSucceeded"`: whether the test suite passed according to the filtered report
   - `"TestReportObject"`: filtered report used for automated pass/fail
   - `"Summary"`: Tabular summary of test results by file and category
+  - `"GroupedResults"`: full test results grouped by category
   - `"TestConfiguration"`: the fully resolved test configuration association
   - `"$TestSuiteAbortedQ"`: whether the test suite was aborted mid-run (e.g., if a failure occured while `"AbortOnFail"` is `True`)
 

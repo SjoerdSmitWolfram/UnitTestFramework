@@ -166,22 +166,22 @@ If[$progressCol > 0, Print["\n"]];
 
 If[MatchQ[$testResult["TestReportObject"], _TestReportObject],
 	If[!$dryQ || !FileExistsQ["last_test_run.wxf"],
-		Export["last_test_run.wxf", $testResult["TestReportObject"]]
+		Export["last_test_run.wxf", $testResult]
 	]
 ];
 
 If[And[
 		$dryQ,
 		FileExistsQ["last_test_run.wxf"],
-		MatchQ[tmp = Import["last_test_run.wxf"], _TestReportObject]
+		MatchQ[tmp = Import["last_test_run.wxf"], _?AssociationQ]
 	],
- 	$testResult["TestReportObject"] = tmp;
+ 	$testResult = tmp;
 ]
 
 (* ── Count results ─────────────────────────────────────────────────────── *)
 
 $summary = $testResult["Summary"];
-$groupedResults = UnitTestFramework`$GroupedResults;
+$groupedResults = Map[#["Results"]&, $testResult["GroupedResults"]];
 countOf[key_] := AggregateRows[$summary, {"Total" -> (Total[#[key]] &)}][[1, "Total"]];
 
 $nSuccess  = countOf["Success"];

@@ -3,6 +3,7 @@ Clear[query, exampleConfigFile];
 query[obj_?AssociationQ] := Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
 	"Summary" -> (Normal @ #[RowKey["ExampleUnitTests.wlt"]] &),
+	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
 	"TestConfiguration" -> Keys
 }] @ obj;
 
@@ -24,6 +25,7 @@ TestCreate[
 		"TestReportObject" -> True, 
 		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
+		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType", 
 			"SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
@@ -44,6 +46,7 @@ TestCreate[
 		"TestReportObject" -> True, 
 		"Summary" -> Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1],
+		"GroupedResults" -> True,
 		"TestConfiguration" -> {
 			"AbortOnFail", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
 			"RandomSeeding", "ReportType", "SkipGeneratedTests", "SkipUnimplemented", "TestCategorizationFunction", "TestConfigFile", 
