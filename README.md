@@ -64,7 +64,7 @@ The main keys supported by `TestConfig` are:
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
 - `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the paclet context inferred from the paclet directory name and any contexts defined in `PacletInfo.wl`.
-- `"TestEvaluationFunction"`: evaluation function passed into `TestReport[..., TestEvaluationFunction -> ...]`.
+- `"TestEvaluationFunction"`: evaluation function that is used inside `TestEvaluator`, which is the default handler for test evaluation in UnitTestFramework. If you want to circumvent `TestEvaluator` altogether, use the `"TestReportOptions"` property to pass a custom `"TestEvaluationFunction"` to `TestReport`.
 - `"RandomSeeding"`: seed used when running the tests.
 - `"TestCategorizationFunction"`: function used to label test results.
 - `"TestReportOptions"`: options forwarded to `TestReport`.
@@ -112,9 +112,12 @@ By default this:
 - Finds all `.wlt`/`.mt` files under the configured test directory
 - Defines a unique context for each test file based on its path to avoid symbol clashes
 - Evaluates using the custom `TestEvaluator`
-- Produces:
-  - `$TestResults` (raw report from the built-in function `TestReport`)
-  - `$TestReport` (filtered report used for automated pass/fail)
+- Produces an association with keys:
+  - `"ReportSucceeded"`: whether the test suite passed according to the filtered report
+  - `"TestReportObject"`: filtered report used for automated pass/fail
+  - `"Summary"`: Tabular summary of test results by file and category
+  - `"TestConfiguration"`: the fully resolved test configuration association
+  - `"$TestSuiteAbortedQ"`: whether the test suite was aborted mid-run (e.g., if a failure occured while `"AbortOnFail"` is `True`)
 
 ### Useful options
 

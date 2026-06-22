@@ -556,10 +556,14 @@ pacletContexts[obj_PacletObject] := With[{
 
 $configPatt = None | _?FileExistsQ;
 
+
+(* ================ RunTests Start ================ *)
+
 RunTests::pacletDir = "Paclet directory could not be located.";
 
 RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	$TestConfig,
+	$TestSuiteAbortedQ = False, (* initialize abort flag *)
 	configFile = conf,
 	assoc = a,
 	i = 0,
@@ -577,8 +581,6 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		];
 		(* do not show progress in terminal sessions *)
 		$ProgressReporting = TrueQ[$Notebooks];
-		(* initialize abort flag *)
-		$TestSuiteAbortedQ = False;
 		$TestResults = CombineReports @ Map[
 			Function[
 				If[ TrueQ[$TestSuiteAbortedQ]
@@ -616,9 +618,11 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			{"Success", "Fixed", "Implemented", "Failure", "PerformanceFailure"}
 		];
 		<|
+			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
 			"Summary" -> TestReportSummary[$TestResults],
-			"TestConfiguration" -> KeySort @ $TestConfig
+			"TestConfiguration" -> KeySort @ $TestConfig,
+			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ
 		|>
 	]
 ];
@@ -627,6 +631,8 @@ RunTests[conf : $configPatt, rest___] := With[{assoc = Association[rest]},
 ];
 
 RunTests[___] := $Failed;
+
+(* ================ RunTests End ================ *)
 
 
 PostTestCleanUp[] := Module[{
