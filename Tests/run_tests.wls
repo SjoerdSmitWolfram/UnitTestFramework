@@ -192,6 +192,7 @@ $nImpl     = countOf["Implemented"];
 $nKnown    = countOf["KnownIssue"];
 $nSkipped  = countOf["Skipped"];
 $nNotImpl  = countOf["NotImplemented"];
+$nSuccessTotal = $nSuccess + $nFixed + $nImpl
 
 (* ── Print counts ──────────────────────────────────────────────────────── *)
 
@@ -330,9 +331,9 @@ $totalFailed = $nFail + $nPerfFail;
 
 Print[hr[]];
 If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
-	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccess] <> " test(s) passed"],
+	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccessTotal] <> " test(s) passed"],
 	Print[c[StandardRed,   Bold, " FAILED "] <> "  " <>
-		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccess] <> " passed"]
+		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"]
 ];
 Print[""];
 
