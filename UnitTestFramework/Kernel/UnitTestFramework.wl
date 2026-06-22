@@ -44,7 +44,7 @@ Description of config keys in the TestConfig file:
 
 - "PacletDirectory": When set to Automatic, RunTests will attempt to find the paclet directory in the directory above Tests by locating the PacletInfo file. If the paclet directory is located somewhere else, use "PacletDirectory" to point RunTests to the right location. The directory will be passed into PacletDirectoryLoad so that Get can load it.
 
-- "PacletContexts": Contexts to load/include on $ContextPath for tests. When set to Automatic, the test runner uses the last part in the path of the "PacletDirectory" property the paclet context. If PacletContexts is a list of multiple strings, the first one should be the main context that can be used to load the paclet using Get. You can add additional contexts to be able to tests internal symbols in the paclet Note that the contexts {"UnitTestFramework`", "MUnit`", "System`"} will also be put on $ContextPath while running tests.
+- "PacletContexts": Contexts to load/include on $ContextPath for tests. When set to Automatic, the test runner uses the last part in the path of the "PacletDirectory" property the paclet context as well as any contexts declared in the PacletInfo.wl file. If PacletContexts is a list of multiple strings, the first one should be the main context that can be used to load the paclet using Get. You can add additional contexts to be able to tests internal symbols in the paclet Note that the contexts {"UnitTestFramework`", "MUnit`", "System`"} will also be put on $ContextPath while running tests.
 
 - "TestEvaluationFunction": Function that gets passed into TestReport[..., TestEvaluationFunction -> fun]. The value Automatic uses the function TestEvaluator defined in UnitTestFramework.wl. If you define your own test evaluation function, this function will replace the call to TestEvaluate inside of TestEvaluator. If you want to define your own TestEvaluationFunction (for example, to handle new tags not handled by TestEvaluator), do it in the Private context below.
 
@@ -387,16 +387,18 @@ getConfig[file_, ext_] := Module[{
 	]
 ];
 
+
 loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	file = f,
 	initialVals = Association[assoc],
-	testAssoc, dir, res
+	testAssoc = <||>,
+	dir, res
 },
 	Enclose[
 		ConfirmAssert[MatchQ[file, $configPatt]];
 		file //= Replace[s_?FileExistsQ :> AbsoluteFileName[s]];
-		testAssoc = If[ file =!= None,
-			Confirm @ Block[{$TestConfig},
+		If[ file =!= None,
+			testAssoc = Confirm @ Block[{$TestConfig},
 				res = Confirm @ getConfig[file];
 				Which[
 					(* If $TestConfig was defined in the file, use that definition *)
@@ -408,8 +410,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 					True,
 						$Failed
 				]
-			],
-			<||>
+			]
 		];
 		testAssoc = Merge[
 			{
@@ -462,6 +463,8 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			$TestConfig["PacletDirectory"] = Confirm @ pacletDirFind[ParentDirectory[dir]]
 		];
 		ConfirmAssert[pacletDirQ @ $TestConfig["PacletDirectory"]];
+		$TestConfig["PacletObject"] = Import[FileNameJoin[{$TestConfig["PacletDirectory"], "PacletInfo.wl"}], "WL"];
+		
 		PacletDataRebuild[];
 		PacletDirectoryLoad @ $TestConfig["PacletDirectory"];
 		
@@ -481,7 +484,10 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			AllTrue[$TestConfig["TestFiles"], FileExistsQ]
 		];
 		If[ $TestConfig["PacletContexts"] === Automatic,
-			$TestConfig["PacletContexts"] = FileNameTake[$TestConfig["PacletDirectory"]] <> "`"
+			$TestConfig["PacletContexts"] = DeleteDuplicates @ Flatten[{
+				FileNameTake[$TestConfig["PacletDirectory"]] <> "`",
+				pacletContexts[$TestConfig["PacletObject"]]
+			}]
 		];
 		$TestConfig["PacletContexts"] = ConfirmMatch[
 			Flatten[{$TestConfig["PacletContexts"]}],
@@ -537,6 +543,16 @@ pacletDirFind[findDir_] := Module[{
 		]
 	]
 ];
+
+pacletContexts[obj_PacletObject] := With[{
+	c1 = obj["Context"],
+	c2 = Cases[
+		obj["Extensions"],
+		list : {"Kernel", __Rule} :> Lookup[Rest[list], "Context"]
+	]
+},
+	DeleteDuplicates @ Select[Flatten[{c1, c2}], StringQ]
+]
 
 $configPatt = None | _?FileExistsQ;
 
@@ -602,7 +618,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		<|
 			"TestReportObject" -> $TestReport,
 			"Summary" -> TestReportSummary[$TestResults],
-			"TestConfiguration" -> $TestConfig
+			"TestConfiguration" -> KeySort @ $TestConfig
 		|>
 	]
 ];
