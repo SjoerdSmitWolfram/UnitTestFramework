@@ -131,7 +131,11 @@ GeneralUtilities`SetUsage[CombineReports,
 ];
 
 GeneralUtilities`SetUsage[LoadTestContexts,
-	"LoadTestContexts[] restores all test file contexts to the $ContextPath to make test results more readable when printed."
+	"LoadTestContexts[] restores all private test file contexts used in the most recent test run to the $ContextPath to make test results more readable when printed."
+];
+
+GeneralUtilities`SetUsage[DropTestContexts,
+	"DropTestContexts[] removes all private test file contexts from the $ContextPath."
 ];
 
 Begin["`Private`"]
@@ -666,6 +670,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		];
 		$GroupedResults //= Map[CombineReports];
 		$TestFileContexts = DeleteDuplicates @ Join[Keys @ usedContexts, fullTestContextPath];
+		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, $TestFileContexts];
 		<|
 			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
@@ -684,12 +689,19 @@ RunTests[___] := $Failed;
 
 (* ================ RunTests End ================ *)
 
+$allCreatedTestContexts = {};
+
 LoadTestContexts[] /; ListQ[$TestFileContexts] := (
+	$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, $TestFileContexts];
 	$ContextPath = DeleteDuplicates @ Join[$TestFileContexts, $ContextPath]
 );
 
+DropTestContexts[] := (
+	$ContextPath = DeleteCases[$ContextPath, Alternatives @@ $allCreatedTestContexts]
+);
+
 PostTestCleanUp[] := Module[{
-	contexts = Complement[$TestFileContexts, $defaultTestContexts],
+	contexts = Complement[Join[$TestFileContexts, $allCreatedTestContexts], $defaultTestContexts],
 	syms
 },
 	syms = Names[Alternatives @@ contexts ~~ ___];
