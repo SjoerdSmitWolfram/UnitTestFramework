@@ -670,7 +670,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		];
 		$GroupedResults //= Map[CombineReports];
 		$TestFileContexts = DeleteDuplicates @ Join[Keys @ usedContexts, fullTestContextPath];
-		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, $TestFileContexts];
+		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, Keys @ usedContexts];
 		<|
 			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
@@ -692,7 +692,6 @@ RunTests[___] := $Failed;
 $allCreatedTestContexts = {};
 
 LoadTestContexts[] /; ListQ[$TestFileContexts] := (
-	$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, $TestFileContexts];
 	$ContextPath = DeleteDuplicates @ Join[$TestFileContexts, $ContextPath]
 );
 
@@ -701,7 +700,7 @@ DropTestContexts[] := (
 );
 
 PostTestCleanUp[] := Module[{
-	contexts = Complement[Join[$TestFileContexts, $allCreatedTestContexts], $defaultTestContexts],
+	contexts = $allCreatedTestContexts,
 	syms
 },
 	syms = Names[Alternatives @@ contexts ~~ ___];
