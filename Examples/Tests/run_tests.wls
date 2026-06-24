@@ -13,6 +13,7 @@ If[MemberQ[$args, "--usage"],
 	Print["Usage: wolframscript -file Tests/run_tests.wls [--full] [--no-color] [--file=FILE[,FILE...]]"];
 	Print[""];
 	Print["  --full             Include performance tests (default: Local mode)"];
+	Print["  --abort            Abort the test suite if a failure is encountered (default: false)"];
 	Print["  --no-color         Disable terminal colors"];
 	Print["  --dry-run          Do not run the tests"];
 	Print["  --summary          Do not print the individual tests"];
@@ -24,6 +25,7 @@ If[MemberQ[$args, "--usage"],
 ];
 
 $fullQ  = MemberQ[$args, "--full" | "-f"];
+$abortQ  = MemberQ[$args, "--abort"];
 $colorQ = ! MemberQ[$args, "--no-color"];
 $dryQ   = MemberQ[$args, "--dry-run"];
 $summaryQ   = MemberQ[$args, "--summary"];
@@ -141,6 +143,10 @@ testOpts["OnTestResult"] = Function[result,
 			$progressCol = 0
 		]
 	]
+];
+
+If[ $abortQ,
+	testOpts["AbortOnFail"] = True
 ];
 
 loadResult = Null;
