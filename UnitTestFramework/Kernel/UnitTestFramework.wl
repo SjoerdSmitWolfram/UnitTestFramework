@@ -104,7 +104,8 @@ GeneralUtilities`SetUsage[RunTests,
 	"RunTests[file$] runs unit tests defined by the key-value data in config file file$. Returns an association with a TestReportObject and a test summary table.
 RunTests[file$, rules$] overrides properties in the config file with other values.
 RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a TestConfig file in that directory. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
-RunTests[None, rules$] takes all configuration directly from rules$."
+RunTests[None, rules$] takes all configuration directly from rules$.
+RunTests[testFiles$, rules$] runs the test suite directly on the specified test files without using a config file. All configuration options will be taken directly from rules$."
 ];
 
 GeneralUtilities`SetUsage[PostTestCleanUp,
@@ -361,7 +362,7 @@ $TestConfigDefaults = <|
 $wlCodeProperties = {"TestCategorizationFunction", "PacletInitialization", "TestEvaluationFunction", "OnTestResult", "TestReportOptions"}
 
 getConfig[file_] := getConfig[file, ToLowerCase @ FileExtension[file]];
-getConfig[file_, "m" | "wlt"] := Get[file];
+getConfig[file_, "m" | "wl"] := Get[file];
 getConfig[file_, ext_] := Module[{
 	data = Association @ Switch[ext,
 		"json",
@@ -437,6 +438,9 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	Enclose[
 		ConfirmAssert[MatchQ[file, $configPatt]];
 		file //= Replace[s_?FileExistsQ :> AbsoluteFileName[s]];
+		If[ file === None && FileExistsQ[initialVals["TestConfigFile"]],
+			file = initialVals["TestConfigFile"] (* Rare use case that can potentially be useful when calling RunTests directly on wlt files. *)
+		];
 		If[ file =!= None,
 			testAssoc = Confirm @ Block[{$TestConfig},
 				res = Confirm @ getConfig[file];
@@ -599,13 +603,45 @@ pacletContexts[obj_PacletObject] := With[{
 	DeleteDuplicates @ Select[Flatten[{c1, c2}], StringQ]
 ]
 
+
+
 $configPatt = None | _?FileExistsQ;
 
+testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt"];
 
 (* ================ RunTests Start ================ *)
 
 RunTests::pacletDir = "Paclet directory could not be located.";
 RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite."
+RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`."
+
+RunTests[files : _?testFileQ | {__?testFileQ}, a_Association?AssociationQ] := Module[{
+	assoc = a,
+	testFiles = Map[FileNameSplit /* FileNameJoin /* AbsoluteFileName, Flatten[{files}]],
+	testDirCandidates = {},
+	testDir
+},
+	testDir = assoc["TestDirectory"];
+	If[ !DirectoryQ[testDir]
+		,
+		testDirCandidates = DirectoryName /@ Flatten[{testFiles}];
+		testDirCandidates = DeleteDuplicates @ MinimalBy[testDirCandidates, FileNameDepth];
+		testDir = First @ testDirCandidates;
+		If[ Length[testDirCandidates] > 1,
+			Message[RunTests::testDir, testDirCandidates, testDir]
+		]
+	];
+	
+	RunTests[
+		None,
+		Join[assoc,
+			<|
+				"TestFiles" -> testFiles,
+				"TestDirectory" -> testDir
+			|>
+		]
+	]
+]
 
 RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	$TestConfig,

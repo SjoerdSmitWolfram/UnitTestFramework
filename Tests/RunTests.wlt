@@ -15,6 +15,11 @@ exampleConfigFile = FileNameJoin[{
 	"Examples", "Tests", "TestConfig.m"
 }];
 
+exampleTestFile = FileNameJoin[{
+	ParentDirectory @ $TestConfig["TestDirectory"],
+	"Examples", "Tests", "ExampleUnitTests.wlt"
+}];
+
 TestCreate[
 	query[
 		RunTests[exampleConfigFile]
@@ -112,4 +117,26 @@ TestCreate[
 	]
 	,
 	TestID->"TestReport-4"
+]
+
+(* Test that calling a test file directly works *)
+TestCreate[
+	RunTests[exampleTestFile] // query
+	,
+	Association[
+		"ReportSucceeded" -> True, 
+		"TestReportObject" -> True,
+		"Summary" -> {
+			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
+				"Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+			]
+		},
+		"GroupedResults" -> True,
+		"TestConfiguration" -> {"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject",
+			"RandomSeeding", "ReportType", "SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
+			"TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"},
+		"$TestSuiteAbortedQ" -> False
+	]
+	,
+	TestID->"TestReport-5"
 ]
