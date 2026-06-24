@@ -193,7 +193,19 @@ iTagTest[test_, tags___] := With[{assoc = toTagAssociation[tags]},
 
 toTagAssociation[tags___] := Association[
 	Replace[Flatten[{tags}], tag : Except[_Rule] :> (tag -> True), {1}]
-]
+];
+
+performanceTestQ[meta_, test_] := Or[
+	TrueQ[meta["PerformanceTest"]],
+	And[
+		(* You can set "PerformanceTest" -> False to make tests with time/memory constraints not count as a performance test *)
+		meta["PerformanceTest"] =!= False, 
+		Or[
+			NumericQ[test["MemoryConstraint"]],
+			NumericQ[test["TimeConstraint"]]
+		]
+	]
+];
 
 skipTestQ[meta_, test_] /; BooleanQ[meta["Skip"]] := meta["Skip"];
 skipTestQ[meta_, test_] := Or[
@@ -205,10 +217,8 @@ skipTestQ[meta_, test_] := Or[
 		(* Only do performance test in the full report *)
 		$TestConfig["ReportType"] =!= "Full",
 		Or[
-			TrueQ[meta["PerformanceTest"]],
-			TrueQ[meta["FullReportOnly"]],
-			NumericQ[test["MemoryConstraint"]],
-			NumericQ[test["TimeConstraint"]]
+			performanceTestQ[meta, test],
+			TrueQ[meta["FullReportOnly"]]
 		]
 	]
 ];
