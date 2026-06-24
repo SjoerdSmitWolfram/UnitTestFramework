@@ -162,7 +162,11 @@ If[ !TrueQ[$dryQ]
 		Exit[1]
 	];
 
-	$testResult = UnitTestFramework`RunTests[$testDir, testOpts]
+	$testResult = UnitTestFramework`RunTests[$testDir, testOpts];
+	If[ FailureQ[$testResult],
+		Print["Error: unit test suite is not configured correctly. Aborting"];
+		Exit[1]
+	]
 ];
 
 If[$progressCol > 0, Print["\n"]];
@@ -175,11 +179,18 @@ If[MatchQ[$testResult["TestReportObject"], _TestReportObject],
 
 If[And[
 		$dryQ,
-		FileExistsQ["last_test_run.wxf"],
-		MatchQ[tmp = Import["last_test_run.wxf"], _?AssociationQ]
+		FileExistsQ["last_test_run.wxf"]
 	],
- 	$testResult = tmp;
-]
+ 	With[{
+		tmp = Import["last_test_run.wxf"]
+	},
+		If[ AssociationQ[tmp],
+			$testResult = tmp,
+			Print["No cached results available to show"];
+			Exit[0]
+		]
+	]
+];
 
 (* ── Count results ─────────────────────────────────────────────────────── *)
 
