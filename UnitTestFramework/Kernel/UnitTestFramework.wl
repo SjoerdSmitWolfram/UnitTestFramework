@@ -59,10 +59,17 @@ Description of config keys in the TestConfig file:
 	- Function[...]: function to be applied to the fully resolved TestConfig association.
 	- Hold[...]: Held expression that gets released.
 
+- "IgnoreLocalConfig": A boolean that can be used to disable the LocalConfig file, which is an untracked file that developers can use to configure properties (such as "LocalDependenciesRoot") specific to their setup.
+
+- "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "LocalDependencies" property.
+
+- "LocalDependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved by finding PacletInfo files in "LocalDependenciesRoot" that correspond to the requested contexts.
+
 Note that the properties {"TestCategorizationFunction", "PacletInitialization", "TestEvaluationFunction", "OnTestResult", "TestReportOptions"} can 
 contain Wolfram code. When using a non-Wolfram config format, these properties can contain an InputForm string that will get converted with ToExpression.
 
 *)
+
 
 ClearAll @@ Names["UnitTestFramework`" ~~ ___];
 
@@ -103,7 +110,7 @@ TestReportSummary[] returns the summary of the most recently executed test repor
 GeneralUtilities`SetUsage[RunTests,
 	"RunTests[file$] runs unit tests defined by the key-value data in config file file$. Returns an association with a TestReportObject and a test summary table.
 RunTests[file$, rules$] overrides properties in the config file with other values.
-RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a TestConfig file in that directory. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
+RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a config file in that directory by locating all files that start with 'TestConfig'. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
 RunTests[None, rules$] takes all configuration directly from rules$.
 RunTests[testFiles$, rules$] runs the test suite directly on the specified test files without using a config file. All configuration options will be taken directly from rules$."
 ];
@@ -365,7 +372,10 @@ $TestConfigDefaults = <|
 	"TestCategorizationFunction" -> Automatic,
 	"TestReportOptions" -> {},
 	"PacletInitialization" -> Automatic,
-	"TestDirectory" -> Automatic
+	"TestDirectory" -> Automatic,
+	"IgnoreLocalConfig" -> False,
+	"LocalDependenciesRoot" -> None,
+	"LocalDependencies" -> None
 |>;
 
 (* Properties that need to be defined as Wolfram code. *)
@@ -404,9 +414,92 @@ getConfig[file_, ext_] := Module[{
 	]
 ];
 
+getLocalConfig[partialConfig_] := Module[{
+	file = None,
+	dir, files,
+	localConfig
+},
+	Catch[
+		dir = partialConfig["TestDirectory"];
+		If[ Or[
+				TrueQ[partialConfig["IgnoreLocalConfig"]],
+				!DirectoryQ[dir]
+			],
+			Throw[<||>, getLocalConfig]
+		];
+		files = FileNames["localconfig.*", dir, IgnoreCase -> True];
+		Switch[ Length[files],
+			1,
+				file = First[files],
+			0,
+				Throw[<||>, getLocalConfig],
+			_,
+				Message[RunTests::localconfig1, dir, FileNameTake /@ files];
+				Throw[<||>, getLocalConfig]
+		];
+		localConfig = Replace[
+			getConfig[file],
+			Except[_?AssociationQ] :> (
+				Message[RunTests::localconfig2, file];
+				file = None;
+				Throw[<||>, getLocalConfig]
+			)
+		];
+		file = FileNameTake[file];
+		Throw[localConfig, getLocalConfig]
+		,
+		getLocalConfig
+		,
+		Function[
+			Association[
+				partialConfig,
+				#1,
+				"LocalConfigFile" -> file
+			]
+		]
+	]
+];
+
+
+localDependenciesPacletDirectoryLoad[config_] /; Or[
+	config["LocalDependenciesRoot"] === {},
+	config["LocalDependencies"] === {}
+] := {};
+
+localDependenciesPacletDirectoryLoad[config_] := Catch[
+	Module[{
+		root = config["LocalDependenciesRoot"],
+		depend = config["LocalDependencies"],
+		pacletInfos, pacletInfoDirs,
+		notFound, multipleInfos
+	},
+		pacletInfos = pacletInfoFind[root, 3];
+		If[ Length[pacletInfos] === 0,
+			Throw[{}, localDependenciesPacletDirectoryLoad]
+		];
+		pacletInfos //= GroupBy[First[pacletContexts[#], $Failed]&];
+		notFound = Complement[depend, Keys[pacletInfos]];
+		If[ notFound =!= {},
+			Message[RunTests::dependNotFound, notFound];
+			Throw[$Failed, localDependenciesPacletDirectoryLoad]
+		];
+		pacletInfos = KeyTake[pacletInfos, depend];
+		multipleInfos = Select[pacletInfos, Length[#] > 1 &];
+		If[ Length[multipleInfos] > 0,
+			Message[RunTests::multdepend, multipleInfos];
+			Throw[$Failed, localDependenciesPacletDirectoryLoad]
+		];
+
+		pacletInfoDirs = Map[DirectoryName] @ Flatten @ Values[pacletInfos];
+		PacletDirectoryLoad[pacletInfoDirs]
+	]
+	,
+	localDependenciesPacletDirectoryLoad
+]
+
 
 loadTestConfigAndInitialize[dir_?DirectoryQ, assoc_] := Module[{
-	configFiles = FileNames["testconfig*", dir, IgnoreCase -> Automatic],
+	configFiles = FileNames["testconfig*", dir, IgnoreCase -> True],
 	selected,
 	selectedFile
 },
@@ -443,7 +536,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	initialVals = Association[assoc],
 	testAssoc = <||>,
 	testFiles, namedFiles, filePattern,
-	dir, res
+	dir, res, pacletFile
 },
 	Enclose[
 		ConfirmAssert[MatchQ[file, $configPatt]];
@@ -466,13 +559,16 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 				]
 			]
 		];
-		testAssoc = Merge[
-			{
-				initialVals,
-				DeleteCases[testAssoc, _Missing | _?FailureQ],
-				$TestConfigDefaults
-			},
-			First
+		testAssoc = ConfirmBy[
+			Merge[
+				{
+					initialVals,
+					DeleteCases[testAssoc, _Missing | _?FailureQ],
+					$TestConfigDefaults
+				},
+				First
+			],
+			AssociationQ
 		];
 		
 		If[ !DirectoryQ[testAssoc["TestDirectory"]],
@@ -480,6 +576,9 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			testAssoc["TestDirectory"] = DirectoryName[file]
 		];
 		dir = testAssoc["TestDirectory"];
+		testAssoc["IgnoreLocalConfig"] //= TrueQ;
+
+		testAssoc //= getLocalConfig;
 
 		$TestConfig = testAssoc;
 		$TestConfig["TestConfigFile"] = file;
@@ -514,11 +613,9 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		If[ $TestConfig["PacletDirectory"] === Automatic,
 			$TestConfig["PacletDirectory"] = Confirm @ pacletDirFind[ParentDirectory[dir]]
 		];
-		ConfirmAssert[pacletDirQ @ $TestConfig["PacletDirectory"]];
-		$TestConfig["PacletObject"] = Import[FileNameJoin[{$TestConfig["PacletDirectory"], "PacletInfo.wl"}], "WL"];
-		
-		PacletDataRebuild[];
-		PacletDirectoryLoad @ $TestConfig["PacletDirectory"];
+		pacletFile = pacletInfoFind @ $TestConfig["PacletDirectory"];
+		ConfirmAssert[Length[pacletFile] === 1];
+		$TestConfig["PacletObject"] = Import[First @ pacletFile, "WL"];
 		
 		namedFiles = $TestConfig["TestFiles"];
 		filePattern = $TestConfig["TestFilePattern"];
@@ -552,6 +649,14 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			Flatten[{$TestConfig["PacletContexts"]}],
 			{__String?(StringEndsQ["`"])}
 		];
+		$TestConfig["LocalDependenciesRoot"] //= Select[Flatten[{#}], DirectoryQ]&;
+		$TestConfig["LocalDependencies"] //= Select[Flatten[{#}], StringQ]&;
+		
+
+		PacletDataRebuild[];
+		PacletDirectoryLoad @ $TestConfig["PacletDirectory"];
+		$TestConfig["LocalDependenciesLoaded"] = Confirm @ localDependenciesPacletDirectoryLoad[$TestConfig];
+
 		Confirm @ Switch[$TestConfig["PacletInitialization"],
 			Automatic,
 				Get[First[$TestConfig["PacletContexts"]]]
@@ -580,17 +685,17 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 (* ================ Test config initialization End ================ *)
 
 
-
-pacletDirQ[dir_] := And[
-	TrueQ @ DirectoryQ[dir],
-	FileExistsQ @ FileNameJoin[dir, "PacletInfo.wl"]
-]
+pacletInfoFind[dir_] := pacletInfoFind[dir, 1]
+pacletInfoFind[dir_, depth_] := Replace[
+	FileNames["PacletInfo.wl" | "PacletInfo.m", dir, depth],
+	Except[_List] :> {}
+];
 
 pacletDirFind[findDir_] := Module[{
 	pacletFile, pacletDir
 },
 	Enclose[
-		pacletFile = FileNames["PacletInfo.wl", findDir, 2];
+		pacletFile = pacletInfoFind[findDir, 2];
 		ConfirmAssert[MatchQ[pacletFile, {_String}]];
 		pacletFile = First[pacletFile];
 		pacletDir = DirectoryName[pacletFile];
@@ -605,13 +710,40 @@ pacletDirFind[findDir_] := Module[{
 
 pacletContexts[obj_PacletObject] := With[{
 	c1 = obj["Context"],
-	c2 = Cases[
+	c2 = obj[Context],
+	c3 = Cases[
 		obj["Extensions"],
-		list : {"Kernel", __Rule} :> Lookup[Rest[list], "Context"]
+		list : {"Kernel", ___, "Context" | Context -> c_, ___} :> c
 	]
 },
-	DeleteDuplicates @ Select[Flatten[{c1, c2}], StringQ]
-]
+	DeleteDuplicates @ Select[Flatten[{c1, c2, c3}], StringQ]
+];
+
+pacletContexts[file_?FileExistsQ] := Module[{
+	obj = Block[{
+		$ContextPath = {"UnitTestFramework`tmp`private`", "System`"},
+		$Context = "UnitTestFramework`tmp`private`"
+	},
+		Import[file, "WL"]
+	],
+	head, assoc
+},
+	head = Head[obj];
+	If[ MatchQ[head, _Symbol] && SymbolName[head] === "Paclet",
+		(* Handling of old-style paclet definitions *)
+		assoc = Association @@ obj;
+		If[ AssociationQ[assoc],
+			obj = PacletObject[assoc],
+			obj = $Failed
+		]
+	];
+	Quiet @ Remove["UnitTestFramework`tmp`private`*"];
+	If[ MatchQ[obj, _PacletObject],
+		pacletContexts[obj],
+		$Failed
+	]
+];
+pacletContexts[_] := $Failed;
 
 
 
@@ -622,8 +754,12 @@ testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt
 (* ================ RunTests Start ================ *)
 
 RunTests::pacletDir = "Paclet directory could not be located.";
-RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite."
-RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`."
+RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite.";
+RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`.";
+RunTests::localconfig1 = "Multiple local config files `2` found in dir `1`. Local config will be ignored; please use only one local configuration file.";
+RunTests::localconfig2 = "Local config file `1` could not be imported and will be ignored.";
+RunTests::dependNotFound = "Dependencies `1` not found in LocalDependenciesRoot. Aborting.";
+RunTests::multdepend = "Multiple PacletInfo files found for the following dependencies: `1`. Aborting.";
 
 RunTests[files : _?testFileQ | {__?testFileQ}, a_Association?AssociationQ] := Module[{
 	assoc = a,
