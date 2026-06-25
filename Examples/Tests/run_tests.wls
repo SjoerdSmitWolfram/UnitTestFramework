@@ -173,18 +173,20 @@ If[ !TrueQ[$dryQ]
 
 If[$progressCol > 0, Print["\n"]];
 
+$cacheFile = FileNameJoin[{$testDir, "last_test_run.wxf"}];
+
 If[MatchQ[$testResult["TestReportObject"], _TestReportObject],
-	If[!$dryQ || !FileExistsQ["last_test_run.wxf"],
-		Export["last_test_run.wxf", $testResult]
+	If[!$dryQ || !FileExistsQ[$cacheFile],
+		Export[$cacheFile, $testResult]
 	]
 ];
 
 If[ And[
 		$dryQ,
-		FileExistsQ["last_test_run.wxf"]
+		FileExistsQ[$cacheFile]
 	],
-	With[{
-		tmp = Import["last_test_run.wxf"]
+ 	With[{
+		tmp = Import[$cacheFile]
 	},
 		If[ AssociationQ[tmp],
 			$testResult = tmp,
