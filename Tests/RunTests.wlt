@@ -4,7 +4,7 @@ query[obj_?AssociationQ] := Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
 	"Summary" -> Normal,
 	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
-	"TestConfiguration" -> Keys
+	"TestConfiguration" -> Keys /* Sort
 }] @ obj;
 
 query[expr_] := expr;
@@ -19,6 +19,13 @@ exampleTestFile = FileNameJoin[{
 	ParentDirectory @ $TestConfig["TestDirectory"],
 	"Examples", "Tests", "ExampleUnitTests.wlt"
 }];
+
+expectedConfigKeys = Sort @ {
+	"AbortOnFail", "Dependencies", "IgnoreLocalConfig", "LocalConfigFile", "LocalDependenciesLoaded", 
+	"LocalDependenciesRoot", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
+	"RandomSeeding", "ReportType", "SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", 
+	"TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
+}
 
 TestCreate[
 	query[
@@ -35,11 +42,7 @@ TestCreate[
 			]
 		},
 		"GroupedResults" -> True,
-		"TestConfiguration" -> {
-			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType", 
-			"SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
-			"TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
-		},
+		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False
 	]
 	,
@@ -60,11 +63,7 @@ TestCreate[
 			]
 		},
 		"GroupedResults" -> True,
-		"TestConfiguration" -> {
-			"AbortOnFail", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
-			"RandomSeeding", "ReportType", "SkipTags", "TestCategorizationFunction", "TestConfigFile", 
-			"TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
-		},
+		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False
 	]
 	,
@@ -84,11 +83,7 @@ TestCreate[
 			]
 		},
 		"GroupedResults" -> True,
-		"TestConfiguration" -> {
-			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType",
-			"SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFilePattern",
-			 "TestFiles", "TestReportOptions"
-		},
+		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False
 	]
 	,
@@ -108,11 +103,7 @@ TestCreate[
 			]
 		},
 		"GroupedResults" -> True,
-		"TestConfiguration" -> {
-			"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", "RandomSeeding", "ReportType",
-			"SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction", "TestFileContext", "TestFilePattern", 
-			"TestFiles", "TestReportOptions"
-		},
+		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False
 	]
 	,
@@ -132,9 +123,7 @@ TestCreate[
 			]
 		},
 		"GroupedResults" -> True,
-		"TestConfiguration" -> {"AbortOnFail",  "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject",
-			"RandomSeeding", "ReportType", "SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", "TestEvaluationFunction",
-			"TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"},
+		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False
 	]
 	,
