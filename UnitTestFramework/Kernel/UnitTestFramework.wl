@@ -61,9 +61,9 @@ Description of config keys in the TestConfig file:
 
 - "IgnoreLocalConfig": A boolean that can be used to disable the LocalConfig file, which is an untracked file that developers can use to configure properties (such as "LocalDependenciesRoot") specific to their setup.
 
-- "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "Dependencies" property.
+- "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "LocalDependencies" property.
 
-- "Dependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved by finding PacletInfo files in "LocalDependenciesRoot" that correspond to the requested contexts.
+- "LocalDependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved by finding PacletInfo files in "LocalDependenciesRoot" that correspond to the requested contexts.
 
 Note that the properties {"TestCategorizationFunction", "PacletInitialization", "TestEvaluationFunction", "OnTestResult", "TestReportOptions"} can 
 contain Wolfram code. When using a non-Wolfram config format, these properties can contain an InputForm string that will get converted with ToExpression.
@@ -375,7 +375,7 @@ $TestConfigDefaults = <|
 	"TestDirectory" -> Automatic,
 	"IgnoreLocalConfig" -> False,
 	"LocalDependenciesRoot" -> None,
-	"Dependencies" -> None
+	"LocalDependencies" -> None
 |>;
 
 (* Properties that need to be defined as Wolfram code. *)
@@ -463,19 +463,19 @@ getLocalConfig[partialConfig_] := Module[{
 
 localDependenciesPacletDirectoryLoad[config_] /; Or[
 	config["LocalDependenciesRoot"] === {},
-	config["Dependencies"] === {}
+	config["LocalDependencies"] === {}
 ] := {};
 
 localDependenciesPacletDirectoryLoad[config_] := Catch[
 	Module[{
 		root = config["LocalDependenciesRoot"],
-		depend = config["Dependencies"],
+		depend = config["LocalDependencies"],
 		pacletInfos, pacletInfoDirs,
 		notFound, multipleInfos
 	},
 		pacletInfos = pacletInfoFind[root, 3];
 		If[ Length[pacletInfos] === 0,
-			Throw[Null, localDependenciesPacletDirectoryLoad]
+			Throw[{}, localDependenciesPacletDirectoryLoad]
 		];
 		pacletInfos //= GroupBy[First[pacletContexts[#], $Failed]&];
 		notFound = Complement[depend, Keys[pacletInfos]];
@@ -650,7 +650,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			{__String?(StringEndsQ["`"])}
 		];
 		$TestConfig["LocalDependenciesRoot"] //= Select[Flatten[{#}], DirectoryQ]&;
-		$TestConfig["Dependencies"] //= Select[Flatten[{#}], StringQ]&;
+		$TestConfig["LocalDependencies"] //= Select[Flatten[{#}], StringQ]&;
 		
 
 		PacletDataRebuild[];
@@ -686,9 +686,9 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 
 
 pacletInfoFind[dir_] := pacletInfoFind[dir, 1]
-pacletInfoFind[dir_, depth_] := If[ DirectoryQ[dir],
+pacletInfoFind[dir_, depth_] := Replace[
 	FileNames["PacletInfo.wl" | "PacletInfo.m", dir, depth],
-	{}
+	Except[_List] :> {}
 ];
 
 pacletDirFind[findDir_] := Module[{
@@ -710,17 +710,35 @@ pacletDirFind[findDir_] := Module[{
 
 pacletContexts[obj_PacletObject] := With[{
 	c1 = obj["Context"],
-	c2 = Cases[
+	c2 = obj[Context],
+	c3 = Cases[
 		obj["Extensions"],
-		list : {"Kernel", __Rule} :> Lookup[Rest[list], "Context"]
+		list : {"Kernel", ___, "Context" | Context -> c_, ___} :> c
 	]
 },
-	DeleteDuplicates @ Select[Flatten[{c1, c2}], StringQ]
-]
-pacletContexts[file_?FileExistsQ] := With[{
-	obj = Import[file, "WL"]
+	DeleteDuplicates @ Select[Flatten[{c1, c2, c3}], StringQ]
+];
+
+pacletContexts[file_?FileExistsQ] := Module[{
+	obj = Block[{
+		$ContextPath = {"UnitTestFramework`tmp`private`", "System`"},
+		$Context = "UnitTestFramework`tmp`private`"
+	},
+		Import[file, "WL"]
+	],
+	head, assoc
 },
-	If[ MatchQ[obj, obj_PacletObject],
+	head = Head[obj];
+	If[ MatchQ[head, _Symbol] && SymbolName[head] === "Paclet",
+		(* Handling of old-style paclet definitions *)
+		assoc = Association @@ obj;
+		If[ AssociationQ[assoc],
+			obj = PacletObject[assoc],
+			obj = $Failed
+		]
+	];
+	Quiet @ Remove["UnitTestFramework`tmp`private`*"];
+	If[ MatchQ[obj, _PacletObject],
 		pacletContexts[obj],
 		$Failed
 	]
