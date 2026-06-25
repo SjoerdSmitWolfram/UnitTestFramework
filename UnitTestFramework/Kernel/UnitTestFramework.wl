@@ -471,7 +471,7 @@ localDependenciesPacletDirectoryLoad[config_] := Catch[
 		root = config["LocalDependenciesRoot"],
 		depend = config["LocalDependencies"],
 		pacletInfos, pacletInfoDirs,
-		notFound, multipleInfos
+		notFound
 	},
 		pacletInfos = pacletInfoFind[root, 3];
 		If[ Length[pacletInfos] === 0,
@@ -484,12 +484,8 @@ localDependenciesPacletDirectoryLoad[config_] := Catch[
 			Throw[$Failed, localDependenciesPacletDirectoryLoad]
 		];
 		pacletInfos = KeyTake[pacletInfos, depend];
-		multipleInfos = Select[pacletInfos, Length[#] > 1 &];
-		If[ Length[multipleInfos] > 0,
-			Message[RunTests::multdepend, multipleInfos];
-			Throw[$Failed, localDependenciesPacletDirectoryLoad]
-		];
-
+		
+		(* Note that if there are multiple pacletinfo files per context, the PacletManager is assumed to resolve the conflict *)
 		pacletInfoDirs = Map[DirectoryName] @ Flatten @ Values[pacletInfos];
 		PacletDirectoryLoad[pacletInfoDirs]
 	]
