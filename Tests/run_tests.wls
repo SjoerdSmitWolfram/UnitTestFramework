@@ -32,7 +32,7 @@ $summaryQ   = MemberQ[$args, "--summary"];
 (* ── File filter ────────────────────────────────────────────────────────── *)
 
 resolveFileArg[arg_String] := Module[{rel = FileNameJoin[{$testDir, arg}]},
-	Which[
+	AbsoluteFileName /@ Which[
 		DirectoryQ[rel],  FileNames["*.wlt", rel, Infinity],
 		FileExistsQ[rel], {rel},
 		DirectoryQ[arg],  FileNames["*.wlt", arg, Infinity],
