@@ -48,7 +48,8 @@ The runner assumes all test files are under the configured `"TestDirectory"` (wh
 3. Define tests using `TestCreate[...]`.
 4. Configure the `TestConfig` file as needed. It can be either a Wolfram file that defines `$TestConfig` or any other file that returns an association.
 5. If you use a Wolfram file, you can further customize the runner by defining your own test evaluation function and/or test categorization function.
-6. Load the framework and run tests by evaluating:
+6. Optionally add an untracked `LocalConfig.*` file in `Tests/` for machine-specific settings such as local dependency roots.
+7. Load the framework and run tests by evaluating:
   - `Get["path/to/UnitTestFramework.wl"]` (use the path https://raw.githubusercontent.com/SjoerdSmitWolfram/UnitTestFramework/refs/heads/main/UnitTestFramework/Kernel/UnitTestFramework.wl to load directly from GitHub)
   - ``UnitTestFramework`RunTests["path/to/Tests/TestConfig.m"]``
 
@@ -71,6 +72,9 @@ The main keys supported by `TestConfig` are:
 - `"TestCategorizationFunction"`: function used to label test results.
 - `"TestReportOptions"`: options forwarded to `TestReport`.
 - `"PacletInitialization"`: initialization code run before tests execute.
+- `"IgnoreLocalConfig"`: when `True`, disables loading of a `LocalConfig.*` file from the test directory.
+- `"LocalDependenciesRoot"`: one or more directories that contain local development paclets.
+- `"LocalDependencies"`: one or more paclet contexts to resolve from `"LocalDependenciesRoot"` and load via `PacletDirectoryLoad`.
 
 `"TestCategorizationFunction"`, `"PacletInitialization"`, `"TestEvaluationFunction"`, `"OnTestResult"`, and `"TestReportOptions"` may contain Wolfram code. If you use a non-Wolfram config format, those values can also be given as `InputForm` strings that will be converted with `ToExpression`.
 
@@ -79,6 +83,27 @@ The main keys supported by `TestConfig` are:
 - `Automatic`: evaluates `Get[pacletContext]` using the inferred paclet context.
 - `Function[...]`: receives the fully resolved test config association.
 - `Hold[...]`: held code that is released after config initialization.
+
+## Local config overrides
+
+If your project needs machine-specific test configuration, you can place a `LocalConfig.*` file in the same directory as `TestConfig`.
+
+- The file is optional and intended to remain untracked.
+- It is loaded after the main `TestConfig`, so its properties override earlier values.
+- It can use the same supported formats as `TestConfig`.
+- Set `"IgnoreLocalConfig" -> True` to disable this behavior.
+
+This is useful for settings that differ per developer, such as paths to locally checked out paclet dependencies. In particular, the `"LocalDependenciesRoot"` is normally set in `LocalConfig` so that each developer can point to their own local paclet checkouts without committing those paths to the shared test configuration.
+
+### Local development dependencies
+
+The local config mechanism is designed to work with local paclet dependencies:
+
+- `"LocalDependenciesRoot"` accepts one or more directories that contain local paclet checkouts.
+- `"LocalDependencies"` lists the paclet contexts that should be resolved from those directories.
+- Matching paclets are located by their `PacletInfo.wl` files (up to 3 levels deep from the root) and loaded with `PacletDirectoryLoad` before paclet initialization runs.
+
+This lets each developer point tests at local working copies of dependent paclets without committing those paths to the shared test configuration.
 
 As part of the initialization, the runner will also set `$TestConfig` to the fully resolved config association and add the following properties:
 - `"TestConfigFile"`: the absolute path to the config file.
@@ -95,6 +120,10 @@ As part of the initialization, the runner will also set `$TestConfig` to the ful
 `TestConfig` should live in each target project's test root, typically:
 
 - `Tests/TestConfig.m`
+
+An optional untracked local override file can live alongside it:
+
+- `Tests/LocalConfig.m`
 
 `UnitTestFramework.wl` does not need to be copied into every project. Path resolution is based on the config file (`"TestDirectory"` defaults to that file's directory). Loading can be done by installing it as a paclet or by simply using `Get["path/to/UnitTestFramework.wl"]`. 
 
