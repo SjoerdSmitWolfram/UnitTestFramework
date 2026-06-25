@@ -59,6 +59,12 @@ Description of config keys in the TestConfig file:
 	- Function[...]: function to be applied to the fully resolved TestConfig association.
 	- Hold[...]: Held expression that gets released.
 
+- "IgnoreLocalConfig": A boolean that can be used to disable the LocalConfig file, which is an untracked file that developers can use to configure properties (such as "LocalDependenciesRoot") specific to their setup.
+
+- "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "Dependencies" property.
+
+- "Dependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved using FindFile["MyPaclet`"] after $Path has been modified to locate packages in "LocalDependenciesRoot".
+
 Note that the properties {"TestCategorizationFunction", "PacletInitialization", "TestEvaluationFunction", "OnTestResult", "TestReportOptions"} can 
 contain Wolfram code. When using a non-Wolfram config format, these properties can contain an InputForm string that will get converted with ToExpression.
 
@@ -103,7 +109,7 @@ TestReportSummary[] returns the summary of the most recently executed test repor
 GeneralUtilities`SetUsage[RunTests,
 	"RunTests[file$] runs unit tests defined by the key-value data in config file file$. Returns an association with a TestReportObject and a test summary table.
 RunTests[file$, rules$] overrides properties in the config file with other values.
-RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a TestConfig file in that directory. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
+RunTests[dir$, $$] uses dir$ as the test directory and automatically tries to find a config file in that directory by locating all files that start with 'TestConfig'. If there are multiple options, a ChoiceDialog will ask the user which one should be used. If no config file is found, a message is issued and the tests will be run using default settings.
 RunTests[None, rules$] takes all configuration directly from rules$.
 RunTests[testFiles$, rules$] runs the test suite directly on the specified test files without using a config file. All configuration options will be taken directly from rules$."
 ];
@@ -404,9 +410,55 @@ getConfig[file_, ext_] := Module[{
 	]
 ];
 
+getLocalConfig[partialConfig_Association] := Module[{
+	file = None,
+	dir, files,
+	localConfig
+},
+	Catch[
+		dir = partialConfig["TestDirectory"];
+		If[ Or[
+				TrueQ[partialConfig["IgnoreLocalConfig"]],
+				!DirectoryQ[dir]
+			],
+			Throw[<||>, getLocalConfig]
+		];
+		files = FileNames["localconfig.*", dir, IgnoreCase -> True];
+		Switch[ Length[files],
+			1,
+				file = First[files],
+			0,
+				Throw[<||>, getLocalConfig],
+			_,
+				Message[RunTests::localconfig1, dir, FileNameTake /@ files];
+				Throw[<||>, getLocalConfig]
+		];
+		localConfig = Replace[
+			getConfig[file],
+			Except[_?AssociationQ] :> (
+				Message[RunTests::localconfig2, file];
+				file = None;
+				Throw[<||>, getLocalConfig]
+			)
+		];
+		file = FileNameTake[file];
+		Throw[localConfig, getLocalConfig]
+		,
+		getLocalConfig
+		,
+		Function[
+			Association[
+				partialConfig,
+				#1,
+				"LocalConfigFile" -> file
+			]
+		]
+	]
+]
+
 
 loadTestConfigAndInitialize[dir_?DirectoryQ, assoc_] := Module[{
-	configFiles = FileNames["testconfig*", dir, IgnoreCase -> Automatic],
+	configFiles = FileNames["testconfig*", dir, IgnoreCase -> True],
 	selected,
 	selectedFile
 },
@@ -480,6 +532,8 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 			testAssoc["TestDirectory"] = DirectoryName[file]
 		];
 		dir = testAssoc["TestDirectory"];
+
+		testAssoc //= getLocalConfig;
 
 		$TestConfig = testAssoc;
 		$TestConfig["TestConfigFile"] = file;
@@ -624,6 +678,8 @@ testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt
 RunTests::pacletDir = "Paclet directory could not be located.";
 RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite."
 RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`."
+RunTests::localconfig1 = "Multiple local config files `2` found in dir `1`. Local config will be ignored; please use only one local configuration file."
+RunTests::localconfig2 = "Local config file `1` could not be imported and will be ignored."
 
 RunTests[files : _?testFileQ | {__?testFileQ}, a_Association?AssociationQ] := Module[{
 	assoc = a,
