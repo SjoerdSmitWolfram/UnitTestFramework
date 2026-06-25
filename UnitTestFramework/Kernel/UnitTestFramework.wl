@@ -184,6 +184,7 @@ TagTest[tags___] := Function[test, iTagTest[test, tags], HoldAllComplete];
 
 SetAttributes[iTagTest, HoldAllComplete];
 iTagTest[test_] := test;
+iTagTest[expr : Except[(TestCreate | VerificationTest)[___]], ___] := expr;
 iTagTest[test_, <||>] := test;
 iTagTest[(h : TestCreate | VerificationTest)[args___, MetaInformation -> assoc_Association, rest___], tags_Association] := h[
 	args,
