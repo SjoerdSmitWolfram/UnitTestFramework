@@ -165,7 +165,7 @@ SetAttributes[ToDecimalDigits, Listable];
 
 ToDecimalDigits[expr_] := ToDecimalDigits[expr, 4];
 ToDecimalDigits[expr_?NumericQ, n_] := N[Round[N @ expr * 10^n] / 10^n];
-ToDecimalDigits[expr_, n_] := ToDecimalDigits[#, n]& /@ expr
+ToDecimalDigits[expr_, n_] := ToDecimalDigits[#, n]& /@ expr;
 
 
 $TestTags = <|
