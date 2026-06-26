@@ -8,13 +8,14 @@ $frameworkSource = FileNameJoin[{ParentDirectory @ $testDir, "UnitTestFramework"
 $args = Rest @ $ScriptCommandLine;
 
 If[MemberQ[$args, "--usage"],
-	Print["Usage: wolframscript -file Tests/run_tests.wls [--full] [--no-color] [--file=FILE[,FILE...]]"];
+	Print["Usage: wolframscript -file Tests/run_tests.wls [--full] [--no-color] [--cf=FILE] [--file=FILE[,FILE...]]"];
 	Print[""];
 	Print["  --full             Include performance tests (default: Local mode)"];
 	Print["  --abort            Abort the test suite if a failure is encountered (default: false)"];
 	Print["  --no-color         Disable terminal colors"];
 	Print["  --dry-run          Do not run the tests"];
 	Print["  --summary          Do not print the individual tests"];
+	Print["  --cf=FILE          Use a specific RunTests config file, relative to Tests/"];
 	Print["  --file=FILE[,...]  Run only the specified file(s) or folder(s), relative to Tests/"];
 	Print["                     Examples: --file=ModelFit.wlt"];
 	Print["                               --file=ModelFit.wlt,Models/Peak.wlt"];
@@ -27,6 +28,25 @@ $abortQ  = MemberQ[$args, "--abort"];
 $colorQ = ! MemberQ[$args, "--no-color"];
 $dryQ   = MemberQ[$args, "--dry-run"];
 $summaryQ   = MemberQ[$args, "--summary"];
+
+$configFile = None;
+With[{
+	flag = SelectFirst[$args, StringStartsQ[#, "--cf="] &, None]
+},
+	If[ flag =!= None,
+		$configFile = StringTrim @ StringDrop[flag, StringLength["--cf="]];
+		If[ Or[
+				$configFile === "",
+				!FileExistsQ[FileNameJoin[{$testDir, $configFile}]]
+			]
+			,
+			Print["Invalid --cf value. Expected --cf=FILE"];
+			Exit[1]
+		];
+		$configFile = FileNameJoin[{$testDir, $configFile}]
+	]
+];
+
 
 
 (* ── File filter ────────────────────────────────────────────────────────── *)
@@ -41,19 +61,21 @@ resolveFileArg[arg_String] := Module[{rel = FileNameJoin[{$testDir, arg}]},
 	]
 ];
 
-With[{flag = SelectFirst[$args, StringStartsQ[#, "--file="] &, None]},
-	$resolvedFiles = If[flag === None,
-		Automatic,
-		With[{entries = StringSplit[StringDrop[flag, StringLength["--file="]], ","]},
+$resolvedFiles = Automatic;
+With[{
+	flag = SelectFirst[$args, StringStartsQ[#, "--file="] &, None]
+},
+	If[ flag =!= None,
+		$resolvedFiles = With[{entries = StringSplit[StringDrop[flag, StringLength["--file="]], ","]},
 			Flatten[resolveFileArg /@ entries]
+		];
+		If[ Length[$resolvedFiles] === 0,
+			Print["No test files found for --file argument."];
+			Exit[1]
 		]
 	]
 ];
 
-If[ListQ[$resolvedFiles] && Length[$resolvedFiles] === 0,
-	Print["No test files found for --file argument."];
-	Exit[1]
-];
 
 (* ── Color helper ──────────────────────────────────────────────────────── *)
 
@@ -68,31 +90,46 @@ $mode = If[$fullQ, "Full", "Local"];
 
 Print[""];
 Print[c[Bold, "Unit Test Suite"] <> "  " <> c[GrayLevel[0.5], "(" <> $mode <> " mode)"]];
-If[ListQ[$resolvedFiles],
-	Module[{rel = StringDrop[#, StringLength[$testDir]] &, grouped, lastgroup},
+Print[""];
+Print[c[GrayLevel[0.5], "$Version: " <> $Version]]
+Print[c[GrayLevel[0.5], "$InstallationDirectory: " <> $InstallationDirectory]]
+Print[""]
+
+If[ ListQ[$resolvedFiles],
+	Module[{
+		rel = StringDrop[#, StringLength[$testDir]] &,
+		grouped, lastgroup, lastQ
+	},
 		grouped = GroupBy[$resolvedFiles, DirectoryName @* rel];
 		lastgroup = Last[grouped];
 		Print[c[GrayLevel[0.5], "  Tests/"]];
-		KeyValueMap[Function[{testdir, files},
-			lastQ = files === lastgroup;
-			If[testdir === "",
-				If[lastQ,
-					Scan[Print[c[GrayLevel[0.5], "  \:251C " <> rel[#]]] &, Most[files]];
-					Print[c[GrayLevel[0.5], "  \:2514 " <> rel[Last[files]]]],
-					Scan[Print[c[GrayLevel[0.5], "  \:251C " <> rel[#]]] &, Most[files]]
-				]
-				,
-				Print[c[GrayLevel[0.5], "  \:251C " <> StringTrim[testdir, $PathnameSeparator] <> "/"]];
-				If[lastQ,
-					Scan[Print[c[GrayLevel[0.5], "  \:251C\:2500\:2500\:2500 " <> FileNameTake[#]]] &, Most[files]];
-					Print[c[GrayLevel[0.5], "  \:2514\:2500\:2500\:2500 " <> FileNameTake[Last[files]]]]
+		KeyValueMap[
+			Function[{testdir, files},
+				lastQ = files === lastgroup;
+				If[ testdir === "",
+					If[ lastQ
+						,
+						Scan[Print[c[GrayLevel[0.5], "  \:251C " <> rel[#]]] &, Most[files]];
+						Print[c[GrayLevel[0.5], "  \:2514 " <> rel[Last[files]]]]
+						,
+						Scan[Print[c[GrayLevel[0.5], "  \:251C " <> rel[#]]] &, Most[files]]
+					]
 					,
-					Scan[Print[c[GrayLevel[0.5], "  \:251C\:2500\:2500\:2500 " <> FileNameTake[#]]] &, files]
+					Print[c[GrayLevel[0.5], "  \:251C " <> StringTrim[testdir, $PathnameSeparator] <> "/"]];
+					If[ lastQ
+						,
+						Scan[Print[c[GrayLevel[0.5], "  \:251C\:2500\:2500\:2500 " <> FileNameTake[#]]] &, Most[files]];
+						Print[c[GrayLevel[0.5], "  \:2514\:2500\:2500\:2500 " <> FileNameTake[Last[files]]]]
+						,
+						Scan[Print[c[GrayLevel[0.5], "  \:251C\:2500\:2500\:2500 " <> FileNameTake[#]]] &, files]
+					]
 				]
-			]
-		], grouped]
+			],
+			grouped
+		]
 	]
 ];
+
 Print[hr[]];
 Print[""];
 
@@ -127,16 +164,16 @@ $progressChar[result_] := With[{
 testOpts["OnTestResult"] = Function[result,
 	With[{file = Quiet @ result["TestFileName"]},
 		(* New file — flush line and print header *)
-		If[StringQ[file] && file =!= $progressFile,
+		If[ StringQ[file] && file =!= $progressFile,
 			If[$progressCol > 0, WriteString["stdout", "\n"]];
 			$progressFile = file;
 			$progressCol  = 0;
-			WriteString["stdout", c[GrayLevel[0.4], FileNameTake[file] <> "\n"]]
+			WriteString["stdout", c[GrayLevel[0.4], StringDrop[file, StringLength[$testDir]] <> "\n"]]
 		];
 		(* Inline character — flush and wrap if needed *)
 		WriteString["stdout", $progressChar[result]];
 		$progressCol++;
-		If[$progressCol >= $progressWidth,
+		If[ $progressCol >= $progressWidth,
 			WriteString["stdout", "\n"];
 			$progressCol = 0
 		]
@@ -162,7 +199,13 @@ If[ !TrueQ[$dryQ]
 		Exit[1]
 	];
 
-	$testResult = UnitTestFramework`RunTests[$testDir, testOpts];
+	$testResult = UnitTestFramework`RunTests[
+		If[ StringQ[$configFile],
+			$configFile,
+			$testDir
+		],
+		testOpts
+	];
 	If[ FailureQ[$testResult],
 		Print["Error: unit test suite is not configured correctly. Aborting"];
 		Exit[1]
@@ -173,8 +216,8 @@ If[$progressCol > 0, Print["\n"]];
 
 $cacheFile = FileNameJoin[{$testDir, "last_test_run.wxf"}];
 
-If[MatchQ[$testResult["TestReportObject"], _TestReportObject],
-	If[!$dryQ || !FileExistsQ[$cacheFile],
+If[ MatchQ[$testResult["TestReportObject"], _TestReportObject],
+	If[ !$dryQ || !FileExistsQ[$cacheFile],
 		Export[$cacheFile, $testResult]
 	]
 ];
@@ -186,8 +229,10 @@ If[ And[
  	With[{
 		tmp = Import[$cacheFile]
 	},
-		If[ AssociationQ[tmp],
-			$testResult = tmp,
+		If[ AssociationQ[tmp]
+			,
+			$testResult = tmp
+			,
 			Print["No cached results available to show"];
 			Exit[0]
 		]
@@ -231,9 +276,9 @@ $failures = Join[
 	Lookup[$groupedResults, "PerformanceFailure", {}]
 ];
 
-If[Length[$failures] > 0 && !$summaryQ,
+If[ Length[$failures] > 0 && !$summaryQ,
 	Print[""];
-	Print[c[ParentDirectory @ DirectoryName @ $InputFileName, Bold, "Failures"]];
+	Print[c[ParentDirectory @ $testDir, Bold, "Failures"]];
 	Print[hr[]];
 	Print[""];
 
