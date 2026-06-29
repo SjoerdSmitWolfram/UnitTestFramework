@@ -397,9 +397,11 @@ getConfig[file_, ext_] := Module[{
 		(* Convert standard strings to Wolfram form *)
 		data //= Map[
 			Replace[{
-					"Automatic" -> Automatic,
-					"True" -> True,
-					"False" -> False
+				"Automatic" -> Automatic,
+				"None" -> None,
+				"All" -> All,
+				"True" | "true" -> True,
+				"False" | "false" -> False
 			}]
 		];
 		(* Apply ToExpression to code-based properties *)
