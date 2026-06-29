@@ -62,6 +62,7 @@ Description of config keys in the TestConfig file:
 - "IgnoreLocalConfig": A boolean that can be used to disable the LocalConfig file, which is an untracked file that developers can use to configure properties (such as "LocalDependenciesRoot") specific to their setup.
 
 - "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "LocalDependencies" property.
+Local dependencies are automatically found by locating their PacletInfo files in "LocalDependenciesRoot" (up to 3 levels down).
 
 - "LocalDependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved by finding PacletInfo files in "LocalDependenciesRoot" that correspond to the requested contexts.
 
@@ -462,10 +463,7 @@ getLocalConfig[partialConfig_] := Module[{
 ];
 
 
-localDependenciesPacletDirectoryLoad[config_] /; Or[
-	config["LocalDependenciesRoot"] === {},
-	config["LocalDependencies"] === {}
-] := {};
+localDependenciesPacletDirectoryLoad[config_] /; config["LocalDependencies"] === {} := {};
 
 localDependenciesPacletDirectoryLoad[config_] := Catch[
 	Module[{
@@ -474,6 +472,10 @@ localDependenciesPacletDirectoryLoad[config_] := Catch[
 		pacletInfos, pacletInfoDirs,
 		notFound
 	},
+		If[ root === {},
+			Message[RunTests::noroot, depend];
+			Throw[$Failed, localDependenciesPacletDirectoryLoad]
+		];
 		pacletInfos = pacletInfoFind[root, 3];
 		If[ Length[pacletInfos] === 0,
 			Throw[{}, localDependenciesPacletDirectoryLoad]
@@ -750,11 +752,12 @@ testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt
 
 (* ================ RunTests Start ================ *)
 
-RunTests::pacletDir = "Paclet directory could not be located.";
+RunTests::pacletDir = "Paclet directory could not be located. Aborting";
 RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite.";
 RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`.";
 RunTests::localconfig1 = "Multiple local config files `2` found in dir `1`. Local config will be ignored; please use only one local configuration file.";
 RunTests::localconfig2 = "Local config file `1` could not be imported and will be ignored.";
+RunTests::noroot = "No local root was specified. Cannot load dependencies `1`. Aborting.";
 RunTests::dependNotFound = "Dependencies `1` not found in LocalDependenciesRoot. Aborting.";
 RunTests::multdepend = "Multiple PacletInfo files found for the following dependencies: `1`. Aborting.";
 
