@@ -462,10 +462,7 @@ getLocalConfig[partialConfig_] := Module[{
 ];
 
 
-localDependenciesPacletDirectoryLoad[config_] /; Or[
-	config["LocalDependenciesRoot"] === {},
-	config["LocalDependencies"] === {}
-] := {};
+localDependenciesPacletDirectoryLoad[config_] /; config["LocalDependencies"] === {} := {};
 
 localDependenciesPacletDirectoryLoad[config_] := Catch[
 	Module[{
@@ -474,6 +471,10 @@ localDependenciesPacletDirectoryLoad[config_] := Catch[
 		pacletInfos, pacletInfoDirs,
 		notFound
 	},
+		If[ root === {},
+			Message[RunTests::noroot, depend];
+			Throw[$Failed, localDependenciesPacletDirectoryLoad]
+		];
 		pacletInfos = pacletInfoFind[root, 3];
 		If[ Length[pacletInfos] === 0,
 			Throw[{}, localDependenciesPacletDirectoryLoad]
@@ -750,11 +751,12 @@ testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt
 
 (* ================ RunTests Start ================ *)
 
-RunTests::pacletDir = "Paclet directory could not be located.";
+RunTests::pacletDir = "Paclet directory could not be located. Aborting";
 RunTests::noConfig = "No config file found in directory `1`. Proceeding with default test suite.";
 RunTests::testDir = "Candidates `1` found for the main test directory. Using `2`.";
 RunTests::localconfig1 = "Multiple local config files `2` found in dir `1`. Local config will be ignored; please use only one local configuration file.";
 RunTests::localconfig2 = "Local config file `1` could not be imported and will be ignored.";
+RunTests::noroot = "No local root was specified. Cannot load dependencies `1`. Aborting.";
 RunTests::dependNotFound = "Dependencies `1` not found in LocalDependenciesRoot. Aborting.";
 RunTests::multdepend = "Multiple PacletInfo files found for the following dependencies: `1`. Aborting.";
 
