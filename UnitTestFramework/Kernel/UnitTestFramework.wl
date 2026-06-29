@@ -62,6 +62,7 @@ Description of config keys in the TestConfig file:
 - "IgnoreLocalConfig": A boolean that can be used to disable the LocalConfig file, which is an untracked file that developers can use to configure properties (such as "LocalDependenciesRoot") specific to their setup.
 
 - "LocalDependenciesRoot": One or more directories that contains local development paclets that can be added using the "LocalDependencies" property.
+Local dependencies are automatically found by locating their PacletInfo files in "LocalDependenciesRoot" (up to 3 levels down).
 
 - "LocalDependencies": A list of one of more paclet contexts in "LocalDependenciesRoot" that need to be added the paclet system using PacletDirectoryLoad. The locations of these paclets are resolved by finding PacletInfo files in "LocalDependenciesRoot" that correspond to the requested contexts.
 

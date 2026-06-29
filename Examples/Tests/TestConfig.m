@@ -19,6 +19,16 @@ $TestConfig = <|
 	"PacletDirectory" -> Automatic,
 	"PacletInitialization" -> Automatic,
 	
+	"IgnoreLocalConfig" -> False,
+	"LocalDependencies" -> None,
+	(* 
+		Normally LocalDependenciesRoot is specified as an absolute path in LocalConfig.m, but you can
+		specify a default dependencies root relative to your project by using, e.g.,
+		"LocalDependenciesRoot" -> ParentDirectory[DirectoryName @ $InputFileName, 2]
+		If you do this, your project should make clear to other users that the dependencies are assumed to be located nearby.
+	*)
+	"LocalDependenciesRoot" -> None,
+
 	"TestDirectory" -> Automatic,
 	"TestFiles" -> All,
 	"TestFilePattern" -> Automatic,
