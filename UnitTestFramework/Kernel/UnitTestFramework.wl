@@ -180,28 +180,38 @@ are automatically classified as \"PerformanceTest\"",
 	"GeneratedTest" -> "Automatically generated test (e.g., by some other code you might have)."
 |>;
 
+TagTest::vtest = "Deprecated VerificationTest object encountered which cannot be tagged. Please rewrite your test suite by replacing VerificationTest with TestCreate.";
+TagTest::meta = "Existing MetaInformation `1` is not an association. This test can not be tagged."
 
-TagTest[tags___] := Function[test, iTagTest[test, tags], HoldAllComplete];
+TagTest[tags___] := With[{assoc = toTagAssociation[tags]},
+	Function[test, iTagTest[test, assoc], HoldAllComplete]
+];
 
 SetAttributes[iTagTest, HoldAllComplete];
-iTagTest[test_] := test;
-iTagTest[expr : Except[(TestCreate | VerificationTest)[___]], ___] := expr;
+iTagTest[test_VerificationTest, _] := (
+	Message[TagTest::vtest];
+	test
+);
 iTagTest[test_, <||>] := test;
-iTagTest[(h : TestCreate | VerificationTest)[args___, MetaInformation -> assoc_Association, rest___], tags_Association] := h[
-	args,
-	rest,
-	MetaInformation -> Merge[{assoc, tags}, Last]
+
+iTagTest[test : TestCreate[args___, MetaInformation -> meta_, rest___], tags_Association] := If[
+	AssociationQ[meta]
+	,
+	TestCreate[args, rest, MetaInformation -> Merge[{meta, tags}, Last]]
+	,
+	Message[TagTest::meta, meta];
+	test
 ];
-iTagTest[(h : TestCreate | VerificationTest)[args___], tags_Association] := h[
+iTagTest[TestCreate[args___], tags_Association] := TestCreate[
 	args,
 	MetaInformation -> tags
 ];
-iTagTest[test_, tags___] := With[{assoc = toTagAssociation[tags]},
-	iTagTest[test, assoc]
-];
+iTagTest[expr_, ___] := expr;
 
+toTagAssociation[] := <||>;
+toTagAssociation[a_?AssociationQ] := a;
 toTagAssociation[tags___] := Association[
-	Replace[Flatten[{tags}], tag : Except[_Rule] :> (tag -> True), {1}]
+	Replace[Flatten[{tags}], tag : Except[_Rule | _RuleDelayed] :> (tag -> True), {1}]
 ];
 
 performanceTestQ[meta_, test_] := Or[
