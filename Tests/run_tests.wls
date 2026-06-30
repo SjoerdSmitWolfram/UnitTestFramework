@@ -282,8 +282,11 @@ If[ Length[$failures] > 0 && !$summaryQ,
 	Print[hr[]];
 	Print[""];
 
-	safeStr[expr_] := With[{s = Quiet @ Check[ToString[Unevaluated[expr], InputForm], "(unavailable)"]},
-	shortStr[s, 300]
+	inputString[HoldForm[expr_]] := inputString[Unevaluated[expr]];
+	inputString[expr_] := ToString[Unevaluated[expr], InputForm];
+
+	safeStr[expr_] := With[{s = Quiet @ Check[inputString[Unevaluated[expr]], "(unavailable)"]},
+		shortStr[s, 300]
 	];
 	safeStr[expr_List] := safeStr /@ Unevaluated[expr];
 	safeStr[HoldForm[expr_]] := safeStr[Unevaluated[expr]];
@@ -359,8 +362,8 @@ If[ Length[$failures] > 0 && !$summaryQ,
 			,
 			$expDisp = safeStr[test["ExpectedOutput"]];
 			$actDisp = safeStr[test["ActualOutput"]];
-			$expFull = Quiet @ Check[ToString[test["ExpectedOutput"], InputForm], $expDisp];
-			$actFull = Quiet @ Check[ToString[test["ActualOutput"],   InputForm], $actDisp];
+			$expFull = Quiet @ Check[inputString[test["ExpectedOutput"]], $expDisp];
+			$actFull = Quiet @ Check[inputString[test["ActualOutput"]], $actDisp];
 			Print[renderDiff[$expDisp, $actDisp, $expFull, $actFull]];
 			$actMsgs = Quiet @ test["ActualMessages"];
 			If[ListQ[$actMsgs] && Length[$actMsgs] > 0,
