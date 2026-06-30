@@ -111,9 +111,8 @@ As part of the initialization, the runner will also set `$TestConfig` to the ful
 
 ## Important conventions
 
-- Prefer `TestCreate` for test definitions.
-- Do not use `VerificationTest` for new tests (legacy style).
-- Use metadata tags to control behavior during local/full runs.
+- Use `TestCreate` for test definitions. Do not use the old symbol `VerificationTest` because it does not support the new features.
+- Use metadata tags to control evaluation behavior of your tests and how tests are reported in the summary.
 
 ## Where files should live
 
