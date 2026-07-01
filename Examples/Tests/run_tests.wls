@@ -12,7 +12,7 @@ $args = Rest @ $ScriptCommandLine;
 If[MemberQ[$args, "--usage"],
 	Print["Usage: wolframscript -file Tests/run_tests.wls [--full] [--no-color] [--cf=FILE] [--file=FILE[,FILE...]]"];
 	Print[""];
-	Print["  --full             Include performance tests (default: Local mode)"];
+	Print["  --local            Exclude performance tests (default: inherited from config file)"];
 	Print["  --abort            Abort the test suite if a failure is encountered (default: false)"];
 	Print["  --no-color         Disable terminal colors"];
 	Print["  --dry-run          Do not run the tests"];
@@ -25,7 +25,7 @@ If[MemberQ[$args, "--usage"],
 	Exit[0]
 ];
 
-$fullQ  = MemberQ[$args, "--full" | "-f"];
+$localQ  = MemberQ[$args, "--local"];
 $abortQ  = MemberQ[$args, "--abort"];
 $colorQ = ! MemberQ[$args, "--no-color"];
 $dryQ   = MemberQ[$args, "--dry-run"];
@@ -88,7 +88,7 @@ hr[] := c[GrayLevel[0.5], StringRepeat["\[LongDash]", 60]];
 
 (* ── Header ────────────────────────────────────────────────────────────── *)
 
-$mode = If[$fullQ, "Full", "Local"];
+$mode = If[$localQ, "Local", "Automatic"];
 
 Print[""];
 Print[c[Bold, "Unit Test Suite"] <> "  " <> c[GrayLevel[0.5], "(" <> $mode <> " mode)"]];
@@ -137,7 +137,9 @@ Print[""];
 
 (* ── Load ──────────────────────────────────────────────────────────────── *)
 testOpts = <||>;
-testOpts["ReportType"] = $mode;
+If[ $localQ, (* Only override the report mode if it has been explicitly specified, otherwise take it from the config file *)
+	testOpts["ReportType"] = $mode
+];
 If[ ListQ[$resolvedFiles],
 	testOpts["TestFiles"] = $resolvedFiles
 ];
