@@ -64,6 +64,7 @@ The main keys supported by `TestConfig` are:
 - `"TestDirectory"`: main directory containing the test files. Defaults to the directory containing the config file.
 - `"TestFiles"`: test files to run. Use `All` to discover all test files recursively under `Tests/`, or provide explicit paths relative to `"TestDirectory"`.
 - `"TestFilePattern"`: File pattern to use to detect test files to run. Only has any effect if `"TestFiles" -> All`  is used. Defaults to `"*.wlt" | "*.mt"`.
+- `"RunFirstFiles"`: List of .wlt files to run first. These files can be used, for example, to specify "CanaryTest" tagged tests to fail early in case of egregious problems. Specified in the same way as `"TestFiles"`, relative to `"TestDirectory"`.
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
 - `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the contexts defined in `PacletInfo.wl`.

@@ -40,6 +40,8 @@ Description of config keys in the TestConfig file:
 
 - "TestFilePattern": File pattern to use to detect test files to run. Only has any effect if "TestFiles" -> All is used. 
 
+- "RunFirstFiles": List of .wlt files to run first. These files can be used, for example, to specify "CanaryTest" tagged tests to fail early in case of egregious problems. 
+
 - "TestFileContext": Base $Context used while evaluating tests. Each test file gets a unique sub-context under this value to isolate helper symbols defined in the test file.
 
 - "PacletDirectory": When set to Automatic, RunTests will attempt to find the paclet directory in the directory above Tests by locating the PacletInfo file. If the paclet directory is located somewhere else, use "PacletDirectory" to point RunTests to the right location. The directory will be passed into PacletDirectoryLoad so that Get can load it.
@@ -372,6 +374,13 @@ fileContext[filename_] := StringJoin[
 	"`"
 ];
 
+resolveFiles[files_, dir_] := Block[{$Path = {}},
+	WithCleanup[
+		SetDirectory[dir],
+		ExpandFileName /@ Flatten[{files}],
+		ResetDirectory[]
+	]
+];
 
 (* ================ Test config initialization Start ================ *)
 
@@ -552,7 +561,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 	file = f,
 	initialVals = Association[assoc],
 	testAssoc = <||>,
-	testFiles, namedFiles, filePattern,
+	testFiles, namedFiles, runFirstFiles, filePattern,
 	dir, res, pacletFile
 },
 	Enclose[
@@ -642,20 +651,23 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 				FileNames[filePattern, dir, Infinity]
 			,
 			_,
-				Block[{$Path = {}},
-					WithCleanup[
-						SetDirectory[dir],
-						ExpandFileName /@ Flatten[{namedFiles}],
-						ResetDirectory[]
-					]
-				]
+				resolveFiles[namedFiles, dir]
 		];
+		runFirstFiles = Replace[
+			$TestConfig["RunFirstFiles"],
+			{
+				files : _List | _String :> resolveFiles[files, dir],
+				_ -> {}
+			}
+		];
+		testFiles = DeleteDuplicates @ Join[runFirstFiles, testFiles];
 		
 		ConfirmAssert @ And[
 			MatchQ[testFiles, {__}],
 			AllTrue[testFiles, FileExistsQ]
 		];
 		$TestConfig["TestFiles"] = testFiles;
+		$TestConfig["RunFirstFiles"] = runFirstFiles;
 
 		If[ $TestConfig["PacletContexts"] === Automatic,
 			$TestConfig["PacletContexts"] = DeleteDuplicates @ Flatten[{
