@@ -32,6 +32,7 @@ $TestConfig = <|
 	"TestDirectory" -> Automatic,
 	"TestFiles" -> All,
 	"TestFilePattern" -> Automatic,
+	"RunFirstFiles" -> {},
 
 	"AbortOnFail" -> False,
 	"OnTestResult" -> Automatic,

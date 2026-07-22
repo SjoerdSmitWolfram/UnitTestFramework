@@ -64,6 +64,7 @@ The main keys supported by `TestConfig` are:
 - `"TestDirectory"`: main directory containing the test files. Defaults to the directory containing the config file.
 - `"TestFiles"`: test files to run. Use `All` to discover all test files recursively under `Tests/`, or provide explicit paths relative to `"TestDirectory"`.
 - `"TestFilePattern"`: File pattern to use to detect test files to run. Only has any effect if `"TestFiles" -> All`  is used. Defaults to `"*.wlt" | "*.mt"`.
+- `"RunFirstFiles"`: List of .wlt files to run first. These files can be used, for example, to specify "CanaryTest" tagged tests to fail early in case of egregious problems. Specified in the same way as `"TestFiles"`, relative to `"TestDirectory"`.
 - `"TestFileContext"`: base `$Context` used while evaluating tests.
 - `"PacletDirectory"`: paclet root directory. When `Automatic`, the runner looks for `PacletInfo.wl` above `Tests/`.
 - `"PacletContexts"`: contexts to put on `$ContextPath` while running tests. Defaults to the contexts defined in `PacletInfo.wl`.
@@ -195,6 +196,7 @@ Built-in tag meanings (from `$TestTags`):
 - `"Skip"`: do not run this test (unless explicitly set to `"Skip" -> False`, which forces the test to run even if it would normally be skipped).
 - `"NotImplemented"`: expected fail until feature exists.
 - `"KnownIssue"`: known failing case that should still run.
+- `"CanaryTest"`: if this test fails, the suite should abort immediately because there will be many failures afterwards. This is useful for tests that are known to be fragile or that indicate a serious problem if they fail.
 - `"PerformanceTest"`: long-running or constrained test. Tests with explicitly specified options for `MemoryConstraint` or `TimeConstraint` are also considered performance tests. Performance tests will be skipped in quick/local reports.
 - `"FullReportOnly"`: skip in quick/local reports.
 - `"BreakPoint"`: stop suite at this test for debugging.
