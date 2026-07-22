@@ -175,6 +175,7 @@ $TestTags = <|
 	"KnownIssue" -> "Run this test - currently expected to fail till the underlying issue gets fixed.",
 	"PerformanceTest" -> "Test if an evaluation does not require excessive time/memory. Tests with a TimeConstraint or MemoryConstraint \
 are automatically classified as \"PerformanceTest\"",
+	"CanaryTest" -> "If this test fails, abort the test suite.",
 	"FullReportOnly" -> "Test that should be skipped when running quick local test suite.",
 	"BreakPoint" -> "Stop the test suite at this test to reproduce the kernel state. Only to be used for development and debugging purposes.",
 	"GeneratedTest" -> "Automatically generated test (e.g., by some other code you might have)."
@@ -258,12 +259,17 @@ TestEvaluator[test_TestObject, meta_] := Which[
 	True,
 		With[{
 			res = $TestConfig["TestEvaluationFunction"][test]
+		},{
+			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
 		},
-			If[ And[
-					TrueQ[$TestConfig["AbortOnFail"]],
-					MatchQ[res["Outcome"], "Failure" | "MessageFailure"],
-					! TrueQ @ meta["NotImplemented"],
-					! TrueQ @ meta["KnownIssue"]
+			If[ Or[
+					meta["CanaryTest"] && failQ,
+					And[
+						TrueQ[$TestConfig["AbortOnFail"]],
+						failQ,
+						! TrueQ @ meta["NotImplemented"],
+						! TrueQ @ meta["KnownIssue"]
+					]
 				],
 				$TestSuiteAbortedQ = True
 			];
