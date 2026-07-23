@@ -197,13 +197,16 @@ iTagTest[test_VerificationTest, _] := (
 );
 iTagTest[test_, <||>] := test;
 
-iTagTest[test : TestCreate[args___, MetaInformation -> meta_, rest___], tags_Association] := If[
-	AssociationQ[meta]
-	,
-	TestCreate[args, rest, MetaInformation -> Merge[{meta, tags}, Last]]
-	,
-	Message[TagTest::meta, meta];
-	test
+iTagTest[test : TestCreate[args___, MetaInformation -> meta_, rest___], tags_Association] := With[{
+	metaAssoc = Association[meta]
+},
+	If[ AssociationQ[metaAssoc]
+		,
+		TestCreate[args, rest, MetaInformation -> Association[metaAssoc, tags]]
+		,
+		Message[TagTest::meta, meta];
+		test
+	]
 ];
 iTagTest[TestCreate[args___], tags_Association] := TestCreate[
 	args,
