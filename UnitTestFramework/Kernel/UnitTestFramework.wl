@@ -875,10 +875,10 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			]
 		];
 
-		$TestReport = CombineReports @ Catenate @ KeyTake[
+		$TestReport = CombineReports @ Catenate @ KeyDrop[
 			$GroupedResults,
 			(* Return only the outright failures and successes for the purposes of automated testing *)
-			{"Success", "Fixed", "Implemented", "Failure", "PerformanceFailure"}
+			{"KnownIssue", "NotImplemented"}
 		];
 		$GroupedResults //= Map[CombineReports];
 		$TestFileContexts = DeleteDuplicates @ Join[Keys @ usedContexts, fullTestContextPath];
