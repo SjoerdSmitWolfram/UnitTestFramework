@@ -267,11 +267,10 @@ TestEvaluator[test_TestObject, meta_] := Which[
 		},{
 			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
 		},
-			If[ Or[
-					meta["CanaryTest"] && failQ,
+			If[ failQ && Or[
+					TrueQ @ meta["CanaryTest"],
 					And[
 						TrueQ[$TestConfig["AbortOnFail"]],
-						failQ,
 						! TrueQ @ meta["NotImplemented"],
 						! TrueQ @ meta["KnownIssue"]
 					]
