@@ -191,10 +191,20 @@ If[ $abortQ,
 loadResult = Null;
 $testResult = <||>;
 
+getSource[src_] := Which[
+	DirectoryQ[src],
+		PacletDirectoryLoad[src];
+		Get["UnitTestFramework`"],
+	StringQ[src],
+		Get[src],
+	True, (* Assume that the paclet has been installed *)
+		Get["UnitTestFramework`"]
+]
+
 If[ !TrueQ[$dryQ]
 	,
 	loadResult = Check[
-		Get[$frameworkSource],
+		getSource[$frameworkSource],
 		$Failed
 	];
 

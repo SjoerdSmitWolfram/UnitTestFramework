@@ -22,7 +22,7 @@ exampleTestFile = FileNameJoin[{
 
 expectedConfigKeys = Sort @ {
 	"AbortOnFail", "LocalDependencies", "IgnoreLocalConfig", "LocalConfigFile", "LocalDependenciesLoaded", 
-	"LocalDependenciesRoot", "OnTestResult", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
+	"LocalDependenciesRoot", "OnTestResult", "PacletContextAliases", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
 	"RandomSeeding", "ReportType", "RunFirstFiles", "SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", 
 	"TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
 }

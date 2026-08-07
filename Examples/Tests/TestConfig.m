@@ -16,6 +16,7 @@ Begin["`Private`"]
 $TestConfig = <|
 	(* The paclet related properties are the most important ones to check when setting up a new project *)
 	"PacletContexts" -> Automatic,
+	"PacletContextAliases" -> Automatic,
 	"PacletDirectory" -> Automatic,
 	"PacletInitialization" -> Automatic,
 	
