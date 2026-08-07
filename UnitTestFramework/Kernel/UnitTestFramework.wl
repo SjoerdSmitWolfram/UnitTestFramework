@@ -855,7 +855,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 						ClearAll[Evaluate[$fileContext <> "`*"]];
 						Block[{
 								$Context = $fileContext,
-								$ContextPath = fullTestContextPath
+								$ContextPath = fullTestContextPath,
+								$ContextAliases = <||>
 							},
 							TestReport[#,
 								Sequence @@ $TestConfig["TestReportOptions"],
