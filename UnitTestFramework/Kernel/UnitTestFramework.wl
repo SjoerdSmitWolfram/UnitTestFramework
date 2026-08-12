@@ -94,6 +94,8 @@ TestEvaluator::usage = "TestEvaluator is the test evaluation function used insid
 
 $TestSuiteAbortedQ::usage = "$TestSuiteAbortedQ is a boolean that gets set to False at the start of the report. When set to True in the middle of a report, all remaining tests will be skipped.";
 
+$RunTestsOutput::usage = "Association returned by the most recent invocation of RunTests."
+
 $TestTags::usage = "$TestTags is an association with descriptions of the tags that can be used in TagTest."
 
 $TestFileContexts::usage = "$TestFileContexts holds all of the contexts that were used during generation of the report. It can be used to make test results easier to read."
@@ -144,7 +146,7 @@ GeneralUtilities`SetUsage[CombineReports,
 ];
 
 GeneralUtilities`SetUsage[LoadTestContexts,
-	"LoadTestContexts[] restores all private test file contexts used in the most recent test run to the $ContextPath to make test results more readable when printed."
+	"LoadTestContexts[] restores private test file contexts used in the most recent test run to the $ContextPath to make test results more readable when printed. Only restores contexts of test files with failures in them."
 ];
 
 GeneralUtilities`SetUsage[DropTestContexts,
@@ -163,6 +165,7 @@ initVar[var_, val_] := If[
 ];
 
 initVar[$TestConfig, <||>];
+initVar[$RunTestsOutput, <||>];
 
 
 Clear[ToDecimalDigits];
@@ -834,9 +837,10 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	i = 0,
 	init = OptionValue["PacletInitialization"],
 	usedContexts = <||>,
-	files,
+	files, testDirDepth,
 	$fileContext,
-	fullTestContextPath	
+	fullTestContextPath,
+	filesWithFailures
 },
 	Enclose[
 		Confirm @ loadTestConfigAndInitialize[configFile, assoc];
@@ -845,25 +849,26 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			Flatten[{$defaultTestContexts, $TestConfig["PacletContexts"]}],
 			StringQ
 		];
+		testDirDepth = FileNameDepth[$TestConfig["TestDirectory"]];
 		(* do not show progress in terminal sessions *)
 		$ProgressReporting = TrueQ[$Notebooks];
 		$TestResults = CombineReports @ Map[
-			Function[
+			Function[file,
 				If[ TrueQ[$TestSuiteAbortedQ]
 					,
 					(* skip the rest of the files if aborted *)
 					Nothing
 					,
 					BlockRandom[
-						$fileContext = fileContext[#];
-						usedContexts[$fileContext] = True;
+						$fileContext = fileContext[file];
+						usedContexts[FileNameDrop[file, testDirDepth]] = $fileContext;
 						ClearAll[Evaluate[$fileContext <> "`*"]];
 						Block[{
 								$Context = $fileContext,
 								$ContextPath = fullTestContextPath,
 								$ContextAliases = $TestConfig["PacletContextAliases"]
 							},
-							TestReport[#,
+							TestReport[file,
 								Sequence @@ $TestConfig["TestReportOptions"],
 								TestEvaluationFunction -> TestEvaluator
 							]
@@ -889,15 +894,21 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			{"KnownIssue", "NotImplemented"}
 		];
 		$GroupedResults //= Map[CombineReports];
-		$TestFileContexts = DeleteDuplicates @ Join[Keys @ usedContexts, fullTestContextPath];
-		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, Keys @ usedContexts];
-		<|
+		$TestFileContexts = Append[usedContexts, "DefaultContexts" -> fullTestContextPath];
+		filesWithFailures = Map[FileNameDrop[#, testDirDepth]&] @ Flatten @ Map[
+			Keys @ #["ResultsByTestFileName"] &,
+ 			Flatten @ Lookup[$GroupedResults, {"Failure", "PerformanceFailure"}, {}]
+		];
+		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, Flatten @ Values @ usedContexts];
+		$RunTestsOutput = <|
 			"ReportSucceeded" -> TrueQ[$TestReport["ReportSucceeded"]],
 			"TestReportObject" -> $TestReport,
 			"Summary" -> TestReportSummary[$TestResults],
 			"GroupedResults" -> $GroupedResults,
 			"TestConfiguration" -> KeySort @ $TestConfig,
-			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ
+			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ,
+			"TestFilesWithFailures" -> filesWithFailures,
+			"TestFileContexts" -> $TestFileContexts
 		|>
 	]
 ];
@@ -911,9 +922,17 @@ RunTests[___] := $Failed;
 
 $allCreatedTestContexts = {};
 
-LoadTestContexts[] /; ListQ[$TestFileContexts] := (
-	$ContextPath = DeleteDuplicates @ Join[$TestFileContexts, $ContextPath]
-);
+LoadTestContexts[] /; AssociationQ[$TestFileContexts] := With[{
+	failFiles = $RunTestsOutput["TestFilesWithFailures"]
+},
+	$ContextPath = DeleteDuplicates @ Flatten @ Join[
+		If[ ListQ[failFiles],
+			Lookup[$TestFileContexts, Append[failFiles, "DefaultContexts"], {}],
+			Values @ $TestFileContexts
+		],
+		$ContextPath
+	]
+];
 
 DropTestContexts[] := (
 	$ContextPath = DeleteCases[$ContextPath, Alternatives @@ $allCreatedTestContexts]
