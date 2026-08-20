@@ -339,31 +339,28 @@ colPriority[col_] := Lookup[
 	9
 ]
 
-sortTable[tab_?TabularQ] := ReverseSortBy[
-	KeyTake[tab, SortBy[Sort @ ColumnKeys[tab], colPriority]],
+sortTable[data_Association] := ReverseSortBy[
+	KeySortBy[colPriority] /@ data,
 	Key["Failure"]
 ];
 sortTable[expr_] := expr;
 
 TestReportSummary[report_] := TestReportSummary[report, Automatic]
 
-TestReportSummary[tr_TestReportObject, fun_] := sortTable @ ToTabular[
-	Map[ 
-		Join[
-			AssociationThread[$categorizations, 0],
-			#
-		]&,
-		GroupBy[
-			tr["Results"],
-			{
-				shortTestFileName,
-				Replace[fun, Automatic -> Lookup[$TestConfig, "TestCategorizationFunction", CategorizeTestResult]]
-			},
-			Length
-		]
-	],
-	"Dataset",
-	<|"LevelNames" -> {"FileName"}|>
+TestReportSummary[tr_TestReportObject, fun_] := Module[{
+	results
+},
+	results = GroupBy[
+		tr["Results"],
+		{
+			shortTestFileName,
+			Replace[fun, Automatic -> Lookup[$TestConfig, "TestCategorizationFunction", CategorizeTestResult]]
+		},
+		Length
+	];
+	results //= Map[Join[AssociationThread[$categorizations, 0], #]&];
+	results = Append[sortTable @ results, "Total" -> Total[Values @ results]];
+	sortTable @ ToTabular[results, "Dataset", <|"LevelNames" -> {"FileName"}|>]
 ];
 
 TestReportSummary[reports_List, fun_] := Join @@ Map[

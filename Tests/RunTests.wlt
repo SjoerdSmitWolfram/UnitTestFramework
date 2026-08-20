@@ -2,7 +2,7 @@ Clear[query, exampleConfigFile];
 
 query[obj_?AssociationQ] := Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
-	"Summary" -> Normal,
+	"Summary" -> Normal /* Most,
 	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
 	"TestConfiguration" -> Keys /* Sort,
 	"TestFileContexts" -> AssociationQ,
