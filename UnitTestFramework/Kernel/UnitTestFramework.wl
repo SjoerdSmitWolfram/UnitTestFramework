@@ -166,6 +166,7 @@ initVar[var_, val_] := If[
 
 initVar[$TestConfig, <||>];
 initVar[$RunTestsOutput, <||>];
+initVar[$testTimings, <||>];
 
 
 Clear[ToDecimalDigits];
@@ -268,7 +269,13 @@ TestEvaluator[test_TestObject, meta_] := Which[
 	,
 	True,
 		With[{
-			res = $TestConfig["TestEvaluationFunction"][test]
+			res = Replace[
+				AbsoluteTiming[$TestConfig["TestEvaluationFunction"][test]],
+				{t_, e_} :> (
+					$testTimings[test["TestID"]] = t;
+					e
+				)
+			]
 		},{
 			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
 		},
@@ -837,6 +844,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	i = 0,
 	init = OptionValue["PacletInitialization"],
 	usedContexts = <||>,
+	$testTimings = <||>,
 	files, testDirDepth,
 	$fileContext,
 	fullTestContextPath,
@@ -908,7 +916,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"TestConfiguration" -> KeySort @ $TestConfig,
 			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ,
 			"TestFilesWithFailures" -> filesWithFailures,
-			"TestFileContexts" -> $TestFileContexts
+			"TestFileContexts" -> $TestFileContexts,
+			"TestTimings" -> $testTimings
 		|>
 	]
 ];
