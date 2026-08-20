@@ -166,6 +166,7 @@ initVar[var_, val_] := If[
 
 initVar[$TestConfig, <||>];
 initVar[$RunTestsOutput, <||>];
+initVar[$testTimings, <||>];
 
 
 Clear[ToDecimalDigits];
@@ -268,7 +269,13 @@ TestEvaluator[test_TestObject, meta_] := Which[
 	,
 	True,
 		With[{
-			res = $TestConfig["TestEvaluationFunction"][test]
+			res = Replace[
+				AbsoluteTiming[$TestConfig["TestEvaluationFunction"][test]],
+				{t_, e_} :> (
+					$testTimings[test["TestID"]] = t;
+					e
+				)
+			]
 		},{
 			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
 		},
@@ -332,31 +339,28 @@ colPriority[col_] := Lookup[
 	9
 ]
 
-sortTable[tab_?TabularQ] := ReverseSortBy[
-	KeyTake[tab, SortBy[Sort @ ColumnKeys[tab], colPriority]],
+sortTable[data_Association] := ReverseSortBy[
+	KeySortBy[colPriority] /@ data,
 	Key["Failure"]
 ];
 sortTable[expr_] := expr;
 
 TestReportSummary[report_] := TestReportSummary[report, Automatic]
 
-TestReportSummary[tr_TestReportObject, fun_] := sortTable @ ToTabular[
-	Map[ 
-		Join[
-			AssociationThread[$categorizations, 0],
-			#
-		]&,
-		GroupBy[
-			tr["Results"],
-			{
-				shortTestFileName,
-				Replace[fun, Automatic -> Lookup[$TestConfig, "TestCategorizationFunction", CategorizeTestResult]]
-			},
-			Length
-		]
-	],
-	"Dataset",
-	<|"LevelNames" -> {"FileName"}|>
+TestReportSummary[tr_TestReportObject, fun_] := Module[{
+	results
+},
+	results = GroupBy[
+		tr["Results"],
+		{
+			shortTestFileName,
+			Replace[fun, Automatic -> Lookup[$TestConfig, "TestCategorizationFunction", CategorizeTestResult]]
+		},
+		Length
+	];
+	results //= Map[Join[AssociationThread[$categorizations, 0], #]&];
+	results = Append[sortTable @ results, "Total" -> Total[Values @ results]];
+	sortTable @ ToTabular[results, "Dataset", <|"LevelNames" -> {"FileName"}|>]
 ];
 
 TestReportSummary[reports_List, fun_] := Join @@ Map[
@@ -837,6 +841,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	i = 0,
 	init = OptionValue["PacletInitialization"],
 	usedContexts = <||>,
+	$testTimings = <||>,
 	files, testDirDepth,
 	$fileContext,
 	fullTestContextPath,
@@ -908,7 +913,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"TestConfiguration" -> KeySort @ $TestConfig,
 			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ,
 			"TestFilesWithFailures" -> filesWithFailures,
-			"TestFileContexts" -> $TestFileContexts
+			"TestFileContexts" -> $TestFileContexts,
+			"TestTimings" -> $testTimings
 		|>
 	]
 ];

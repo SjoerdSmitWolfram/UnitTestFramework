@@ -2,10 +2,11 @@ Clear[query, exampleConfigFile];
 
 query[obj_?AssociationQ] := Query[{
 	"TestReportObject" -> (#["ReportSucceeded"] &),
-	"Summary" -> Normal,
+	"Summary" -> Normal /* Most,
 	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
 	"TestConfiguration" -> Keys /* Sort,
-	"TestFileContexts" -> AssociationQ
+	"TestFileContexts" -> AssociationQ,
+	"TestTimings" -> AssociationQ
 }] @ obj;
 
 query[expr_] := expr;
@@ -46,7 +47,8 @@ TestCreate[
 		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False,
 		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True
+		"TestFileContexts" -> True,
+		"TestTimings" -> True
 	]
 	,
 	TestID->"TestReport-1"
@@ -69,7 +71,8 @@ TestCreate[
 		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False,
 		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True
+		"TestFileContexts" -> True,
+		"TestTimings" -> True
 	]
 	,
 	TestID->"TestReport-2"
@@ -91,7 +94,8 @@ TestCreate[
 		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False,
 		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True
+		"TestFileContexts" -> True,
+		"TestTimings" -> True
 	]
 	,
 	TestID->"TestReport-3"
@@ -113,7 +117,8 @@ TestCreate[
 		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False,
 		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True
+		"TestFileContexts" -> True,
+		"TestTimings" -> True
 	]
 	,
 	TestID->"TestReport-4"
@@ -135,7 +140,8 @@ TestCreate[
 		"TestConfiguration" -> expectedConfigKeys,
 		"$TestSuiteAbortedQ" -> False,
 		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True
+		"TestFileContexts" -> True,
+		"TestTimings" -> True
 	]
 	,
 	TestID->"TestReport-5"
