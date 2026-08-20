@@ -255,7 +255,7 @@ If[ And[
 
 $summary = $testResult["Summary"];
 $groupedResults = Map[#["Results"]&, $testResult["GroupedResults"]];
-countOf[key_] := AggregateRows[$summary, {"Total" -> (Total[#[key]] &)}][[1, "Total"]];
+countOf[key_] := $summary[RowKey["Total"], key];
 
 $nSuccess  = countOf["Success"];
 $nFail     = countOf["Failure"];
