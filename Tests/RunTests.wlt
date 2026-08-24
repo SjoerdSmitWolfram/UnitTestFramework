@@ -45,7 +45,7 @@ expectedConfigKeys = Sort @ {
 	"AbortOnFail", "LocalDependencies", "IgnoreLocalConfig", "LocalConfigFile", "LocalDependenciesLoaded", 
 	"LocalDependenciesRoot", "OnTestResult", "PacletContextAliases", "PacletContexts", "PacletDirectory", "PacletInitialization", "PacletObject", 
 	"RandomSeeding", "ReportType", "RunFirstFiles", "SkipTags", "TestCategorizationFunction", "TestConfigFile", "TestDirectory", 
-	"TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions"
+	"TestEvaluationFunction", "TestFileContext", "TestFilePattern", "TestFiles", "TestReportOptions", "TestSections"
 }
 
 TestCreate[
@@ -119,6 +119,20 @@ TestCreate[
 		"Summary" -> {
 			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
 				"Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+			]
+		}
+	]
+	,
+	TestID->"TestReport-5"
+]
+
+TestCreate[
+	RunTests[exampleConfigFile, "TestSections" -> _String?(StringEndsQ["s"])] // query
+	,
+	$defaultExpectedResults[
+		"Summary" -> {
+			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 6, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
+				"Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 5
 			]
 		}
 	]

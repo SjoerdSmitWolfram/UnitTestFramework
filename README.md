@@ -61,6 +61,7 @@ The main keys supported by `TestConfig` are:
 - `"OnTestResult"`: callback applied to each produced test result.
 - `"ReportType"`: controls breadth of the run, for example `"Full"` versus a quicker `"Local"` run. The full test will include all tests, while a local run may skip performance tests and other long-running cases.
 - `"SkipTags"`: List of tags to skip. Default value is `None`.
+- `"TestSections"`: list of test sections to run. Default value is `All`.
 - `"TestDirectory"`: main directory containing the test files. Defaults to the directory containing the config file.
 - `"TestFiles"`: test files to run. Use `All` to discover all test files recursively under `Tests/`, or provide explicit paths relative to `"TestDirectory"`.
 - `"TestFilePattern"`: File pattern to use to detect test files to run. Only has any effect if `"TestFiles" -> All`  is used. Defaults to `"*.wlt" | "*.mt"`.

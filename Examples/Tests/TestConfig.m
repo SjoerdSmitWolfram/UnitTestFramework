@@ -39,7 +39,8 @@ $TestConfig = <|
 	"OnTestResult" -> Automatic,
 	"ReportType" -> "Full",
 	"SkipTags" -> None,
-	
+	"TestSections" -> All,
+
 	"TestEvaluationFunction" -> Automatic,
 	"RandomSeeding" -> 1234,
 	"TestCategorizationFunction" -> Automatic,
