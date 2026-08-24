@@ -100,6 +100,12 @@ $TestTags::usage = "$TestTags is an association with descriptions of the tags th
 
 $TestFileContexts::usage = "$TestFileContexts holds all of the contexts that were used during generation of the report. It can be used to make test results easier to read."
 
+$CurrentTestSection::usage = "$CurrentTestSection is a string that holds the name of the current test section as given by BeginTestSection[...]"
+
+$SkipCurrentTestSection::usage = "$SkipCurrentTestSection is a boolean that automatically gets set to False at the start and end of each test section (as specified by BeginTestSection[...] and EndTestSection[...]). If its value is True, tests will be skipped."
+
+$TestMetaData::usage = "$TestMetaData is an association with TestIDs as keys that gets populated during TestCreate. It can be used to store information that is only available at the test creation time, such as the TestSection that the test lives in."
+
 GeneralUtilities`SetUsage[TagTest,
 	"TagTest[tags$1, tag$2, $$][test$] attaches metadata tags to a test expression. See $TestTags for details about the tags that can be used.
 TagTest[tag$ -> val$, $$][test$] sets a specific value for a specified tag. The default value for tags without explicit values is True."
@@ -184,6 +190,7 @@ $TestTags = <|
 	"PerformanceTest" -> "Test if an evaluation does not require excessive time/memory. Tests with a TimeConstraint or MemoryConstraint \
 are automatically classified as \"PerformanceTest\"",
 	"CanaryTest" -> "If this test fails, abort the test suite.",
+	"SectionCanaryTest" -> "If this test fails, skip the current test section.",
 	"FullReportOnly" -> "Test that should be skipped when running quick local test suite.",
 	"BreakPoint" -> "Stop the test suite at this test to reproduce the kernel state. Only to be used for development and debugging purposes.",
 	"GeneratedTest" -> "Automatically generated test (e.g., by some other code you might have)."
@@ -256,38 +263,71 @@ skipTestQ[meta_, test_] := Or[
 
 $TestSuiteAbortedQ = False;
 
-TestEvaluator[t_TestObject] := TestEvaluator[t, t["MetaInformation"]];
+$TestMetaData = <||>;
+
+TestEvaluator[t_TestObject] := Block[{
+	test = t,
+	id = t["TestID"],
+	newMetaInfo,
+	section
+},
+	newMetaInfo = Association @ Apply[Join] @ Select[
+		{
+			t["MetaInformation"],
+			Lookup[$TestMetaData, id, <||>]
+		},
+		AssociationQ
+	];
+	section = newMetaInfo["TestSection"];
+	If[ section =!= $CurrentTestSection,
+		$SkipCurrentTestSection = False; (* New section has started in the TestEvaluation part of TestReport. *)
+		$CurrentTestSection = section
+	];
+	test[[1, "MetaInformation"]] = newMetaInfo;
+	$TestMetaData[id] = newMetaInfo;
+	TestEvaluator[test, newMetaInfo]
+];
+
 TestEvaluator[test_TestObject, meta_] := Which[
 	TrueQ @ meta["BreakPoint"],
 		$TestSuiteAbortedQ = True;
 		$TestConfig["OnTestResult"][test];
 		test
 	,
-	TrueQ[$TestSuiteAbortedQ] || skipTestQ[meta, test],
+	TrueQ[$TestSuiteAbortedQ] || TrueQ[$SkipCurrentTestSection] || skipTestQ[meta, test],
 		$TestConfig["OnTestResult"][test];
 		test
 	,
 	True,
-		With[{
+		Block[{res, failQ, seriousFailureQ},
 			res = Replace[
 				AbsoluteTiming[$TestConfig["TestEvaluationFunction"][test]],
 				{t_, e_} :> (
 					$testTimings[test["TestID"]] = t;
 					e
 				)
-			]
-		},{
-			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
-		},
-			If[ failQ && Or[
-					TrueQ @ meta["CanaryTest"],
-					And[
-						TrueQ[$TestConfig["AbortOnFail"]],
-						! TrueQ @ meta["NotImplemented"],
-						! TrueQ @ meta["KnownIssue"]
-					]
-				],
-				$TestSuiteAbortedQ = True
+			];
+			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"];
+			If[ failQ,
+				seriousFailureQ = Not @ Or[
+					TrueQ @ meta["NotImplemented"],
+					TrueQ @ meta["KnownIssue"]
+				];
+				Which[
+					Or[
+						TrueQ @ meta["CanaryTest"],
+						And[
+							TrueQ[$TestConfig["AbortOnFail"]],
+							seriousFailureQ
+						]
+					],
+						$TestSuiteAbortedQ = True,
+					TrueQ @ meta["SectionCanaryTest"],
+						$SkipCurrentTestSection = True,
+					True,
+						Null
+				]
+				
 			];
 			$TestConfig["OnTestResult"][res];
 			res
@@ -642,6 +682,7 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 				}
 			]
 		];
+		$TestConfig["TestReportOptions"] //= addSectionHandlerFunctions;
 		$TestConfig["TestEvaluationFunction"] //= Replace[Automatic -> TestEvaluate];
 		$TestConfig["TestCategorizationFunction"] //= Replace[Automatic -> CategorizeTestResult];
 
@@ -794,6 +835,40 @@ $configPatt = None | _?FileExistsQ;
 
 testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt"];
 
+$CurrentTestSection = None;
+$SkipCurrentTestSection = False;
+
+(* Note that these handlers fire at the time when TestCreate is used. Not in the TestEvaluate part of TestReport*)
+sectionHandlers := sectionHandlers = <|
+	"TestCreated" -> Function[
+		With[{id = #["TestObject"]["TestID"]},
+			$TestMetaData[id] = <|"TestSection" -> $CurrentTestSection|>
+		];
+		#
+	],
+	"SectionStarted" -> Function[
+		$SkipCurrentTestSection = False; 
+		$CurrentTestSection = #["Title"];
+		#
+	],
+	"SectionCompleted" -> Function[
+		$SkipCurrentTestSection = False;
+		$CurrentTestSection = None;
+		#
+	]
+|>
+
+addSectionHandlerFunctions[opts_List] := Module[{
+	handlers = Replace[Lookup[opts, HandlerFunctions, <||>], Except[_Association] :> <||>],
+	newOpts = Association[opts],
+	newHandlers
+},
+	newHandlers = Merge[{sectionHandlers, handlers}, Apply[RightComposition]];
+	newOpts[HandlerFunctions] = newHandlers;
+	newOpts[HandlerFunctionsKeys] = All;
+	Normal[newOpts]
+]
+
 (* ================ RunTests Start ================ *)
 
 RunTests::pacletDir = "Paclet directory could not be located. Aborting";
@@ -836,6 +911,9 @@ RunTests[files : _?testFileQ | {__?testFileQ}, a_Association?AssociationQ] := Mo
 RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	$TestConfig,
 	$TestSuiteAbortedQ = False, (* initialize abort flag *)
+	$CurrentTestSection = None,
+	$SkipCurrentTestSection = False,
+	$TestMetaData = <||>,
 	configFile = conf,
 	assoc = a,
 	i = 0,
@@ -914,7 +992,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"$TestSuiteAbortedQ" -> $TestSuiteAbortedQ,
 			"TestFilesWithFailures" -> filesWithFailures,
 			"TestFileContexts" -> $TestFileContexts,
-			"TestTimings" -> $testTimings
+			"TestTimings" -> $testTimings,
+			"TestMetaData" -> $TestMetaData
 		|>
 	]
 ];
