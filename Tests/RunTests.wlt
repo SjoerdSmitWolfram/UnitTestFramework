@@ -6,11 +6,30 @@ query[obj_?AssociationQ] := Query[{
 	"GroupedResults" -> Function[AssociationQ[#] && AllTrue[#, MatchQ[_TestReportObject]]],
 	"TestConfiguration" -> Keys /* Sort,
 	"TestFileContexts" -> AssociationQ,
-	"TestTimings" -> AssociationQ
-}] @ obj;
+	"TestTimings" -> AssociationQ,
+	"TestMetaData" -> AssociationQ
+}] @ KeySort[obj];
 
 query[expr_] := expr;
 
+$defaultExpectedResults[rules___] := KeySort @ Association[
+	"ReportSucceeded" -> True,
+	"TestReportObject" -> True,
+	"Summary" -> {
+		Association[
+			"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
+			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+		]
+	},
+	"GroupedResults" -> True,
+	"TestConfiguration" -> expectedConfigKeys,
+	"$TestSuiteAbortedQ" -> False,
+	"TestFilesWithFailures" -> {},
+	"TestFileContexts" -> True,
+	"TestTimings" -> True,
+	"TestMetaData" -> True,
+	rules
+]
 
 exampleConfigFile = FileNameJoin[{
 	ParentDirectory @ $TestConfig["TestDirectory"],
@@ -34,21 +53,13 @@ TestCreate[
 		RunTests[exampleConfigFile]
 	]
 	,
-	Association[
-		"ReportSucceeded" -> True,
-		"TestReportObject" -> True, 
+	$defaultExpectedResults[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
 			]
-		},
-		"GroupedResults" -> True,
-		"TestConfiguration" -> expectedConfigKeys,
-		"$TestSuiteAbortedQ" -> False,
-		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True,
-		"TestTimings" -> True
+		}
 	]
 	,
 	TestID->"TestReport-1"
@@ -58,21 +69,13 @@ TestCreate[
 TestCreate[
 	query[RunTests[None, "TestDirectory" -> DirectoryName @ exampleConfigFile]]
 	,
-	Association[
-		"ReportSucceeded" -> True,
-		"TestReportObject" -> True, 
+	$defaultExpectedResults[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
 			]
-		},
-		"GroupedResults" -> True,
-		"TestConfiguration" -> expectedConfigKeys,
-		"$TestSuiteAbortedQ" -> False,
-		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True,
-		"TestTimings" -> True
+		}
 	]
 	,
 	TestID->"TestReport-2"
@@ -81,21 +84,13 @@ TestCreate[
 TestCreate[
 	RunTests[exampleConfigFile, "SkipTags" ->"NotImplemented"] // query
 	,
-	Association[
-		"ReportSucceeded" -> True,
-		"TestReportObject" -> True,
+	$defaultExpectedResults[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
 				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 3
 			]
-		},
-		"GroupedResults" -> True,
-		"TestConfiguration" -> expectedConfigKeys,
-		"$TestSuiteAbortedQ" -> False,
-		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True,
-		"TestTimings" -> True
+		}
 	]
 	,
 	TestID->"TestReport-3"
@@ -104,21 +99,13 @@ TestCreate[
 TestCreate[
 	RunTests[exampleConfigFile, "SkipTags" ->{"NotImplemented", "GeneratedTest"}]//query
 	,
-	Association[
-		"ReportSucceeded" -> True,
-		"TestReportObject" -> True,
+	$defaultExpectedResults[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 7, "Failure" -> 0, "PerformanceFailure" -> 0,
 				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 4
 			]
-		},
-		"GroupedResults" -> True,
-		"TestConfiguration" -> expectedConfigKeys,
-		"$TestSuiteAbortedQ" -> False,
-		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True,
-		"TestTimings" -> True
+		}
 	]
 	,
 	TestID->"TestReport-4"
@@ -128,20 +115,12 @@ TestCreate[
 TestCreate[
 	RunTests[exampleTestFile] // query
 	,
-	Association[
-		"ReportSucceeded" -> True, 
-		"TestReportObject" -> True,
+	$defaultExpectedResults[
 		"Summary" -> {
 			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
 				"Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
 			]
-		},
-		"GroupedResults" -> True,
-		"TestConfiguration" -> expectedConfigKeys,
-		"$TestSuiteAbortedQ" -> False,
-		"TestFilesWithFailures" -> {},
-		"TestFileContexts" -> True,
-		"TestTimings" -> True
+		}
 	]
 	,
 	TestID->"TestReport-5"

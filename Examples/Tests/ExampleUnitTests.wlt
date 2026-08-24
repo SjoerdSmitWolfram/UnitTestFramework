@@ -1,6 +1,8 @@
 (* ========================================================================= *)
 (* Basic tests                                                                *)
 (* ========================================================================= *)
+BeginTestSection["Basic-Tests"]
+
 
 TestCreate[
 	MyFunction[6]
@@ -31,10 +33,13 @@ TestCreate[
 	TestID -> "Basic-PackageScopeFunction"
 ]
 
+EndTestSection[(*"Basic-Tests"*)]
 
 (* ========================================================================= *)
 (* KnownIssue examples                                                        *)
 (* ========================================================================= *)
+
+BeginTestSection["Known-Issues"]
 
 (* The example paclet has a deliberate bug: MyFunction[3] := 5. *)
 TestCreate[
@@ -55,10 +60,15 @@ TestCreate[
 	TestID -> "KnownIssue-AlreadyFixed"
 ] // TagTest["KnownIssue"]
 
+EndTestSection[(*"Known-Issues"*)]
 
 (* ========================================================================= *)
 (* NotImplemented examples                                                    *)
 (* ========================================================================= *)
+
+
+BeginTestSection["NotImplemented"]
+
 
 (* Represents a feature that still returns a failure for odd values. *)
 TestCreate[
@@ -79,10 +89,15 @@ TestCreate[
 	TestID -> "NotImplemented-AlreadyImplemented"
 ] // TagTest["NotImplemented"]
 
+EndTestSection[(*"NotImplemented"*)]
 
 (* ========================================================================= *)
 (* Skip / GeneratedTest examples                                              *)
 (* ========================================================================= *)
+
+
+BeginTestSection["Skip-GeneratedTest"]
+
 
 (* Always skipped unless explicitly forced with "Skip" -> False. *)
 TestCreate[
@@ -111,10 +126,14 @@ TestCreate[
 	TestID -> "GeneratedTest-Example"
 ] // TagTest["GeneratedTest"]
 
+EndTestSection[(*"Skip-GeneratedTest"*)]
 
 (* ========================================================================= *)
 (* Report-type based examples                                                 *)
 (* ========================================================================= *)
+
+
+BeginTestSection["Report-types"]
 
 (* Skipped in local runs (ReportType != "Full"), runs in full reports. *)
 TestCreate[
@@ -145,10 +164,14 @@ TestCreate[
 	TimeConstraint -> 1
 ]
 
+EndTestSection[(*"Report-types"*)]
 
 (* ========================================================================= *)
 (* Multiple tags at once                                                      *)
 (* ========================================================================= *)
+
+
+BeginTestSection["Multi-Tags"]
 
 (* This demonstrates multi-tag metadata and explicit booleans. *)
 TestCreate[
@@ -160,3 +183,4 @@ TestCreate[
 	SameTest -> MatchQ
 ] // TagTest["KnownIssue", "GeneratedTest" -> True, "Skip" -> False]
 
+EndTestSection[(*"Multi-Tags"*)]
