@@ -34,6 +34,8 @@ Description of config keys in the TestConfig file:
 
 - "SkipTags": Tags that should be skipped. Tests tagged "Skip" will always be skipped.
 
+- "TestSections": List or pattern of test sections that should be run. Default: All.
+
 - "TestDirectory": Main directory of the test files. Defaults to the directory of the TestConfig file.
 
 - "TestFiles": Which .wlt files to run. Use All to discover all tests under the Tests directory recursively using the "TestFilePattern" property, or provide an explicit list of file paths relative to "TestDirectory".
@@ -269,7 +271,8 @@ TestEvaluator[t_TestObject] := Block[{
 	test = t,
 	id = t["TestID"],
 	newMetaInfo,
-	section
+	section,
+	sectionsPattern
 },
 	newMetaInfo = Association @ Apply[Join] @ Select[
 		{
@@ -280,7 +283,14 @@ TestEvaluator[t_TestObject] := Block[{
 	];
 	section = newMetaInfo["TestSection"];
 	If[ section =!= $CurrentTestSection,
-		$SkipCurrentTestSection = False; (* New section has started in the TestEvaluation part of TestReport. *)
+		(* New section has started in the TestEvaluation part of TestReport. *)
+		sectionsPattern = $TestConfig["TestSections"];
+		If[ sectionsPattern === All
+			,
+			$SkipCurrentTestSection = False
+			,
+			$SkipCurrentTestSection = !MatchQ[section, sectionsPattern]
+		];
 		$CurrentTestSection = section
 	];
 	test[[1, "MetaInformation"]] = newMetaInfo;
@@ -442,6 +452,7 @@ $TestConfigDefaults = <|
 	"TestFiles" -> All,
 	"TestFilePattern" -> Automatic,
 	"SkipTags" -> None,
+	"TestSections" -> All,
 	"TestFileContext" -> "UnitTestFramework`TestRun`",
 	"PacletDirectory" -> Automatic,
 	"PacletContexts" -> Automatic,
@@ -672,6 +683,10 @@ loadTestConfigAndInitialize[f_, assoc_] := Module[{
 		];
 		ConfirmAssert[AssociationQ @ $TestConfig["SkipTags"]];
 		
+		$TestConfig["TestSections"] //= Replace[
+			l_List :> Alternatives @@ l
+		];
+
 		$TestConfig["OnTestResult"] //= Replace[Automatic -> Function[Null]];
 		$TestConfig["TestReportOptions"] //= Function[
 			Replace[
