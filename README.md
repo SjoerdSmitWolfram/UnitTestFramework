@@ -198,6 +198,7 @@ Built-in tag meanings (from `$TestTags`):
 - `"NotImplemented"`: expected fail until feature exists.
 - `"KnownIssue"`: known failing case that should still run.
 - `"CanaryTest"`: if this test fails, the suite should abort immediately because there will be many failures afterwards. This is useful for tests that are known to be fragile or that indicate a serious problem if they fail.
+- `"SectionCanaryTest"`: same as `"CanaryTest"`, but only aborts the current section (as delineated by `BeginTestSection[...]` and `EndTestSection[]`) of tests instead of the entire suite.
 - `"PerformanceTest"`: long-running or constrained test. Tests with explicitly specified options for `MemoryConstraint` or `TimeConstraint` are also considered performance tests. Performance tests will be skipped in quick/local reports.
 - `"FullReportOnly"`: skip in quick/local reports.
 - `"BreakPoint"`: stop suite at this test for debugging.

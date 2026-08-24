@@ -190,6 +190,7 @@ $TestTags = <|
 	"PerformanceTest" -> "Test if an evaluation does not require excessive time/memory. Tests with a TimeConstraint or MemoryConstraint \
 are automatically classified as \"PerformanceTest\"",
 	"CanaryTest" -> "If this test fails, abort the test suite.",
+	"SectionCanaryTest" -> "If this test fails, skip the current test section.",
 	"FullReportOnly" -> "Test that should be skipped when running quick local test suite.",
 	"BreakPoint" -> "Stop the test suite at this test to reproduce the kernel state. Only to be used for development and debugging purposes.",
 	"GeneratedTest" -> "Automatically generated test (e.g., by some other code you might have)."
@@ -267,7 +268,8 @@ $TestMetaData = <||>;
 TestEvaluator[t_TestObject] := Block[{
 	test = t,
 	id = t["TestID"],
-	newMetaInfo
+	newMetaInfo,
+	section
 },
 	newMetaInfo = Association @ Apply[Join] @ Select[
 		{
@@ -275,6 +277,11 @@ TestEvaluator[t_TestObject] := Block[{
 			Lookup[$TestMetaData, id, <||>]
 		},
 		AssociationQ
+	];
+	section = newMetaInfo["TestSection"];
+	If[ section =!= $CurrentTestSection,
+		$SkipCurrentTestSection = False; (* New section has started in the TestEvaluation part of TestReport. *)
+		$CurrentTestSection = section
 	];
 	test[[1, "MetaInformation"]] = newMetaInfo;
 	$TestMetaData[id] = newMetaInfo;
@@ -292,26 +299,35 @@ TestEvaluator[test_TestObject, meta_] := Which[
 		test
 	,
 	True,
-		With[{
+		Block[{res, failQ, seriousFailureQ},
 			res = Replace[
 				AbsoluteTiming[$TestConfig["TestEvaluationFunction"][test]],
 				{t_, e_} :> (
 					$testTimings[test["TestID"]] = t;
 					e
 				)
-			]
-		},{
-			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"]
-		},
-			If[ failQ && Or[
-					TrueQ @ meta["CanaryTest"],
-					And[
-						TrueQ[$TestConfig["AbortOnFail"]],
-						! TrueQ @ meta["NotImplemented"],
-						! TrueQ @ meta["KnownIssue"]
-					]
-				],
-				$TestSuiteAbortedQ = True
+			];
+			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"];
+			If[ failQ,
+				seriousFailureQ = Not @ Or[
+					TrueQ @ meta["NotImplemented"],
+					TrueQ @ meta["KnownIssue"]
+				];
+				Which[
+					Or[
+						TrueQ @ meta["CanaryTest"],
+						And[
+							TrueQ[$TestConfig["AbortOnFail"]],
+							seriousFailureQ
+						]
+					],
+						$TestSuiteAbortedQ = True,
+					TrueQ @ meta["SectionCanaryTest"],
+						$SkipCurrentTestSection = True,
+					True,
+						Null
+				]
+				
 			];
 			$TestConfig["OnTestResult"][res];
 			res
@@ -822,6 +838,7 @@ testFileQ[file_] := FileExistsQ[file] && MatchQ[FileExtension[file], "wlt" | "mt
 $CurrentTestSection = None;
 $SkipCurrentTestSection = False;
 
+(* Note that these handlers fire at the time when TestCreate is used. Not in the TestEvaluate part of TestReport*)
 sectionHandlers := sectionHandlers = <|
 	"TestCreated" -> Function[
 		With[{id = #["TestObject"]["TestID"]},
@@ -830,7 +847,7 @@ sectionHandlers := sectionHandlers = <|
 		#
 	],
 	"SectionStarted" -> Function[
-		$SkipCurrentTestSection = False;
+		$SkipCurrentTestSection = False; 
 		$CurrentTestSection = #["Title"];
 		#
 	],
