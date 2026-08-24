@@ -173,7 +173,7 @@ This marks the test as a performance test. In non-full reports, performance test
 
 Multiple tags can be set by using `TagTest[tag1, tag2, ...]`. Tags can also be given values, for example `TagTest["Skip" -> True]` to explicitly mark a test to be skipped, or `TagTest["Skip" -> False]` to force it to run even if it would normally be skipped. The default tag values is `True`, so `TagTest[tag1, ...]` is equivalent to `TagTest[tag1 -> True, ...]`.
 
-Tags are stored in the test's `MetaInformation` and can be used to control test execution and reporting behavior.
+Tags are stored in the test's `MetaInformation` and can be used to control test execution and reporting behavior. The `MetaInformation` of tests will also be automatically populated with a `"TestSection"` key if the test is defined between `BeginTestSection[...]` and `EndTestSection[...]` calls. This allows you to group tests into sections and control abort behavior for each section separately.
 
 ## Test result categorizations
 

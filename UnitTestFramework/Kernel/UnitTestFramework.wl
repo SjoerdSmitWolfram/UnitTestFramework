@@ -951,6 +951,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 								$ContextPath = fullTestContextPath,
 								$ContextAliases = $TestConfig["PacletContextAliases"]
 							},
+							$CurrentTestSection = None;
+							$SkipCurrentTestSection = False;
 							TestReport[file,
 								Sequence @@ $TestConfig["TestReportOptions"],
 								TestEvaluationFunction -> TestEvaluator
