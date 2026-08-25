@@ -301,6 +301,7 @@ TestEvaluator[t_TestObject] := Block[{
 	section,
 	sectionsPattern
 },
+	(* Tag in section information that was generated during TestCreate by the TestReport HandlerFunctions *)
 	test //= TagTest[Lookup[$TestMetaData, id, <||>]];
 	newMetaInfo = test["MetaInformation"];
 	section = newMetaInfo["TestSection"];
