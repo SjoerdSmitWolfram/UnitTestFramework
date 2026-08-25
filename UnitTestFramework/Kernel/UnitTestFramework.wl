@@ -227,7 +227,34 @@ iTagTest[TestCreate[args___], tags_Association] := TestCreate[
 	args,
 	MetaInformation -> tags
 ];
-iTagTest[expr_, ___] := expr;
+
+iTagTest[test : TestObject[assoc_Association], tags_Association] := With[{
+	metaAssoc = Replace[
+		assoc["MetaInformation"],
+		{
+			None -> <||>,
+			other_ :> Association[other]
+		}
+	]
+},
+	If[ AssociationQ[metaAssoc]
+		,
+		TestObject[
+			Append[assoc, "MetaInformation" -> Association[metaAssoc, tags]]
+		]
+		,
+		Message[TagTest::meta, assoc["MetaInformation"]];
+		test
+	]
+];
+
+insideTagTest = False;
+iTagTest[expr_, tags___] /; !TrueQ[insideTagTest] := Block[{insideTagTest = True},
+	Replace[
+		iTagTest @@ {expr, tags},
+		_iTagTest :> expr
+	]
+];
 
 toTagAssociation[] := <||>;
 toTagAssociation[a_?AssociationQ] := a;
@@ -274,13 +301,9 @@ TestEvaluator[t_TestObject] := Block[{
 	section,
 	sectionsPattern
 },
-	newMetaInfo = Association @ Apply[Join] @ Select[
-		{
-			t["MetaInformation"],
-			Lookup[$TestMetaData, id, <||>]
-		},
-		AssociationQ
-	];
+	(* Tag in section information that was generated during TestCreate by the TestReport HandlerFunctions *)
+	test //= TagTest[Lookup[$TestMetaData, id, <||>]];
+	newMetaInfo = test["MetaInformation"];
 	section = newMetaInfo["TestSection"];
 	If[ section =!= $CurrentTestSection,
 		(* New section has started in the TestEvaluation part of TestReport. *)
@@ -293,7 +316,6 @@ TestEvaluator[t_TestObject] := Block[{
 		];
 		$CurrentTestSection = section
 	];
-	test[[1, "MetaInformation"]] = newMetaInfo;
 	$TestMetaData[id] = newMetaInfo;
 	TestEvaluator[test, newMetaInfo]
 ];
