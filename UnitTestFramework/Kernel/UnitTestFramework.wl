@@ -227,7 +227,34 @@ iTagTest[TestCreate[args___], tags_Association] := TestCreate[
 	args,
 	MetaInformation -> tags
 ];
-iTagTest[expr_, ___] := expr;
+
+iTagTest[test : TestObject[assoc_Association], tags_Association] := With[{
+	metaAssoc = Replace[
+		assoc["MetaInformation"],
+		{
+			None -> <||>,
+			other_ :> Association[other]
+		}
+	]
+},
+	If[ AssociationQ[metaAssoc]
+		,
+		TestObject[
+			Append[assoc, "MetaInformation" -> Association[metaAssoc, tags]]
+		]
+		,
+		Message[TagTest::meta, assoc["MetaInformation"]];
+		test
+	]
+];
+
+insideTagTest = False;
+iTagTest[expr_, tags___] /; !TrueQ[insideTagTest] := Block[{insideTagTest = True},
+	Replace[
+		iTagTest @@ {expr, tags},
+		_iTagTest :> expr
+	]
+];
 
 toTagAssociation[] := <||>;
 toTagAssociation[a_?AssociationQ] := a;
