@@ -301,13 +301,8 @@ TestEvaluator[t_TestObject] := Block[{
 	section,
 	sectionsPattern
 },
-	newMetaInfo = Association @ Apply[Join] @ Select[
-		{
-			t["MetaInformation"],
-			Lookup[$TestMetaData, id, <||>]
-		},
-		AssociationQ
-	];
+	test //= TagTest[Lookup[$TestMetaData, id, <||>]];
+	newMetaInfo = test["MetaInformation"];
 	section = newMetaInfo["TestSection"];
 	If[ section =!= $CurrentTestSection,
 		(* New section has started in the TestEvaluation part of TestReport. *)
@@ -320,7 +315,6 @@ TestEvaluator[t_TestObject] := Block[{
 		];
 		$CurrentTestSection = section
 	];
-	test[[1, "MetaInformation"]] = newMetaInfo;
 	$TestMetaData[id] = newMetaInfo;
 	TestEvaluator[test, newMetaInfo]
 ];
