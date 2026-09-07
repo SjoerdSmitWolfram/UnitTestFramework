@@ -409,9 +409,17 @@ $totalFailed = $nFail + $nPerfFail;
 
 Print[hr[]];
 If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
-	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccessTotal] <> " test(s) passed"],
+	Print[c[StandardGreen, Bold, " PASSED "] <> "  " <> ToString[$nSuccessTotal] <> " test(s) passed"]
+	,
+	Print["Files with failures:"];
+	KeyValueMap[
+		Print[#1, ": ", #2]&,
+		$testResult["TestFilesWithFailures"]
+	];
+	Print["\n"];
 	Print[c[StandardRed,   Bold, " FAILED "] <> "  " <>
-		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"]
+		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"];
+	
 ];
 Print[""];
 

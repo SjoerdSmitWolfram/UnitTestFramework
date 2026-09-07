@@ -24,7 +24,7 @@ $defaultExpectedResults[rules___] := KeySort @ Association[
 	"GroupedResults" -> True,
 	"TestConfiguration" -> expectedConfigKeys,
 	"$TestSuiteAbortedQ" -> False,
-	"TestFilesWithFailures" -> {},
+	"TestFilesWithFailures" -> <||>,
 	"TestFileContexts" -> True,
 	"TestTimings" -> True,
 	"TestMetaData" -> True,

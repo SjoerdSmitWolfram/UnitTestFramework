@@ -1017,9 +1017,16 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 		];
 		$GroupedResults //= Map[CombineReports];
 		$TestFileContexts = Append[usedContexts, "DefaultContexts" -> fullTestContextPath];
-		filesWithFailures = Map[FileNameDrop[#, testDirDepth]&] @ Flatten @ Map[
-			Keys @ #["ResultsByTestFileName"] &,
- 			Flatten @ Lookup[$GroupedResults, {"Failure", "PerformanceFailure"}, {}]
+		filesWithFailures = Map[
+			Replace[_Missing -> 0],
+			GeneralUtilities`AssociationTranspose @ Map[
+				KeyMap[FileNameDrop[#, testDirDepth] &] /* Map[Length],
+				Map[
+					#["ResultsByTestFileName"] &,
+					KeyTake[$GroupedResults, {"Failure", "PerformanceFailure"}]
+				]
+			],
+			{2}
 		];
 		$allCreatedTestContexts = DeleteDuplicates @ Join[$allCreatedTestContexts, Flatten @ Values @ usedContexts];
 		$RunTestsOutput = <|
@@ -1047,7 +1054,7 @@ RunTests[___] := $Failed;
 $allCreatedTestContexts = {};
 
 LoadTestContexts[] /; AssociationQ[$TestFileContexts] := With[{
-	failFiles = $RunTestsOutput["TestFilesWithFailures"]
+	failFiles = Keys @ $RunTestsOutput["TestFilesWithFailures"]
 },
 	$ContextPath = DeleteDuplicates @ Flatten @ Join[
 		If[ ListQ[failFiles],
