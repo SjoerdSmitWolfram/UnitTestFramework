@@ -413,13 +413,16 @@ If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
 	,
 	Print["Files with failures:"];
 	KeyValueMap[
-		Print[#1, ": ", #2]&,
+		Function[{file, failures},
+			Print[file, ": "]; 
+			KeyValueMap[Print["- ", #1, " ", #2, "\n"] &, Select[failures, Positive]]
+		],
 		$testResult["TestFilesWithFailures"]
 	];
-	Print["\n"];
-	Print[c[StandardRed,   Bold, " FAILED "] <> "  " <>
-		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"];
-	
+	Print[
+		c[StandardRed,   Bold, " FAILED "] <> "  " <>
+		ToString[$totalFailed] <> " failure(s)  |  " <> ToString[$nSuccessTotal] <> " passed"
+	]
 ];
 Print[""];
 
