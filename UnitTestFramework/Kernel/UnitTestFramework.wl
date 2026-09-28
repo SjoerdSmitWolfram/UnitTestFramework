@@ -339,7 +339,7 @@ TestEvaluator[test_TestObject, meta_] := Which[
 					e
 				)
 			];
-			failQ = MatchQ[res["Outcome"], "Failure" | "MessageFailure"];
+			failQ = MatchQ[res["Outcome"], "Failure" | "MessagesFailure"];
 			If[ failQ,
 				seriousFailureQ = Not @ Or[
 					TrueQ @ meta["NotImplemented"],
