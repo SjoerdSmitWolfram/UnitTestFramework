@@ -106,7 +106,7 @@ $CurrentTestSection::usage = "$CurrentTestSection is a string that holds the nam
 
 $SkipCurrentTestSection::usage = "$SkipCurrentTestSection is a boolean that automatically gets set to False at the start and end of each test section (as specified by BeginTestSection[...] and EndTestSection[...]). If its value is True, tests will be skipped."
 
-$TestMetaData::usage = "$TestMetaData is an association with TestIDs as keys that gets populated during TestCreate. It can be used to store information that is only available at the test creation time, such as the TestSection that the test lives in."
+$TestMetadata::usage = "$TestMetadata is an association with TestIDs as keys that gets populated during TestCreate. It can be used to store information that is only available at the test creation time, such as the TestSection that the test lives in."
 
 GeneralUtilities`SetUsage[TagTest,
 	"TagTest[tags$1, tag$2, $$][test$] attaches metadata tags to a test expression. See $TestTags for details about the tags that can be used.
@@ -294,7 +294,7 @@ skipTestQ[meta_, test_] := Or[
 
 $TestSuiteAbortedQ = False;
 
-$TestMetaData = <||>;
+$TestMetadata = <||>;
 
 TestEvaluator[t_TestObject] := Block[{
 	test = t,
@@ -304,7 +304,7 @@ TestEvaluator[t_TestObject] := Block[{
 	sectionsPattern
 },
 	(* Tag in section information that was generated during TestCreate by the TestReport HandlerFunctions *)
-	test //= TagTest[Lookup[$TestMetaData, id, <||>]];
+	test //= TagTest[Lookup[$TestMetadata, id, <||>]];
 	newMetaInfo = test["MetaInformation"];
 	section = newMetaInfo["TestSection"];
 	If[ section =!= $CurrentTestSection,
@@ -318,7 +318,7 @@ TestEvaluator[t_TestObject] := Block[{
 		];
 		$CurrentTestSection = section
 	];
-	$TestMetaData[id] = newMetaInfo;
+	$TestMetadata[id] = newMetaInfo;
 	TestEvaluator[test, newMetaInfo]
 ];
 
@@ -632,7 +632,7 @@ loadTestConfigAndInitialize[dir_?DirectoryQ, assoc_] := Module[{
 		,
 		1,
 			First[configFiles],
-		2,
+		_,
 			selected = ChoiceDialog[
 				StringRiffle[
 					{
@@ -890,7 +890,7 @@ $SkipCurrentTestSection = False;
 sectionHandlers := sectionHandlers = <|
 	"TestCreated" -> Function[
 		With[{id = #["TestObject"]["TestID"]},
-			$TestMetaData[id] = <|"TestSection" -> $CurrentTestSection|>
+			$TestMetadata[id] = <|"TestSection" -> $CurrentTestSection|>
 		];
 		#
 	],
@@ -961,7 +961,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	$TestSuiteAbortedQ = False, (* initialize abort flag *)
 	$CurrentTestSection = None,
 	$SkipCurrentTestSection = False,
-	$TestMetaData = <||>,
+	$TestMetadata = <||>,
 	configFile = conf,
 	assoc = a,
 	i = 0,
@@ -1050,7 +1050,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"TestFilesWithFailures" -> filesWithFailures,
 			"TestFileContexts" -> $TestFileContexts,
 			"TestTimings" -> $testTimings,
-			"TestMetaData" -> $TestMetaData
+			"TestMetadata" -> $TestMetadata
 		|>
 	]
 ];
