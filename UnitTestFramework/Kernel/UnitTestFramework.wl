@@ -632,7 +632,7 @@ loadTestConfigAndInitialize[dir_?DirectoryQ, assoc_] := Module[{
 		,
 		1,
 			First[configFiles],
-		2,
+		_,
 			selected = ChoiceDialog[
 				StringRiffle[
 					{
