@@ -140,10 +140,10 @@ GeneralUtilities`SetUsage[CategorizeTestResult,
 Possible categories are:
 | 'Success' | test evaluated as expected |
 | 'Failure' | test evaluated not as expected |
-| 'KnownIssue' | test failed, but this was expected because of a bug |
+| 'KnownIssue' | test failed, but this was expected because of a bug (for tests tagged 'KnownMessageIssue': only if the outcome is 'MessagesFailure') |
 | 'NotImplemented' | test failed because the feature hasn't been implemented yet |
 | 'PerformanceFailure' | test failed because of time or memory constraint |
-| 'Fixed' | a 'KnownIssue' test that now passes |
+| 'Fixed' | a 'KnownIssue' or 'KnownMessageIssue' test that now passes |
 | 'Implemented' | a 'NotImplemented' test that now passes |
 | 'Skipped' | test did not run |
 "
@@ -189,6 +189,8 @@ $TestTags = <|
 	"Skip" -> "Do not run this test right now. Use \"Skip\" -> False to force a test to run regardless of other considerations.",
 	"NotImplemented" -> "Skip this test - test is expected to fail because functionality hasn't been implemented.",
 	"KnownIssue" -> "Run this test - currently expected to fail till the underlying issue gets fixed.",
+	"KnownMessageIssue" -> "Run this test - currently expected to issue unexpected messages till the underlying issue gets fixed. \
+Only an outcome of \"MessagesFailure\" counts as a known issue; outright failures are still reported as \"Failure\".",
 	"PerformanceTest" -> "Test if an evaluation does not require excessive time/memory. Tests with a TimeConstraint or MemoryConstraint \
 are automatically classified as \"PerformanceTest\"",
 	"CanaryTest" -> "If this test fails, abort the test suite.",
@@ -343,7 +345,7 @@ TestEvaluator[test_TestObject, meta_] := Which[
 			If[ failQ,
 				seriousFailureQ = Not @ Or[
 					TrueQ @ meta["NotImplemented"],
-					TrueQ @ meta["KnownIssue"]
+					knownIssueQ[meta, res["Outcome"]]
 				];
 				Which[
 					Or[
@@ -368,12 +370,21 @@ TestEvaluator[test_TestObject, meta_] := Which[
 
 $categorizations = {"Success", "Failure", "PerformanceFailure", "Implemented", "Fixed", "KnownIssue", "NotImplemented", "Skipped"};
 
+(* "KnownMessageIssue" only covers tests that fail because of unexpected messages *)
+knownIssueQ[meta_, outcome_] := Or[
+	TrueQ @ meta["KnownIssue"],
+	And[
+		TrueQ @ meta["KnownMessageIssue"],
+		outcome === "MessagesFailure"
+	]
+];
+
 CategorizeTestResult[obj_TestObject] := iCategorizeTestResult[obj["Outcome"], obj["MetaInformation"], obj];
 
 iCategorizeTestResult["NotEvaluated", __] := "Skipped";
 
 iCategorizeTestResult["Success", meta_, obj_] := Which[
-	TrueQ @ meta["KnownIssue"],
+	TrueQ @ meta["KnownIssue"] || TrueQ @ meta["KnownMessageIssue"],
 		"Fixed",
 	TrueQ @ meta["NotImplemented"],
 		"Implemented",
@@ -382,7 +393,7 @@ iCategorizeTestResult["Success", meta_, obj_] := Which[
 ];
 
 iCategorizeTestResult[outcome_, meta_, obj_] := Which[
-	TrueQ @ meta["KnownIssue"],
+	knownIssueQ[meta, outcome],
 		"KnownIssue",
 	TrueQ @ meta["NotImplemented"],
 		"NotImplemented",

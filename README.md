@@ -182,10 +182,10 @@ Tags are stored in the test's `MetaInformation` and can be used to control test 
 
 - `Success`: test evaluated as expected
 - `Failure`: test evaluated not as expected
-- `KnownIssue`: test failed, but this was expected because of a bug
+- `KnownIssue`: test failed, but this was expected because of a bug (for tests tagged `"KnownMessageIssue"`, only when the outcome is `"MessagesFailure"`)
 - `NotImplemented`: test failed because the feature hasn't been implemented yet
 - `PerformanceFailure`: test failed because of time or memory constraint
-- `Fixed`: a `KnownIssue` test that now passes
+- `Fixed`: a `KnownIssue` or `KnownMessageIssue` test that now passes
 - `Implemented`: a `NotImplemented` test that now passes
 - `Skipped`: test did not run
 
@@ -198,6 +198,7 @@ Built-in tag meanings (from `$TestTags`):
 - `"Skip"`: do not run this test (unless explicitly set to `"Skip" -> False`, which forces the test to run even if it would normally be skipped).
 - `"NotImplemented"`: expected fail until feature exists.
 - `"KnownIssue"`: known failing case that should still run.
+- `"KnownMessageIssue"`: like `"KnownIssue"`, but only for tests that produce the correct result while issuing unexpected messages. The test is reported as `KnownIssue` if its outcome is `"MessagesFailure"`, but as a regular `Failure` if the result itself is wrong (outcome `"Failure"`).
 - `"CanaryTest"`: if this test fails, the suite should abort immediately because there will be many failures afterwards. This is useful for tests that are known to be fragile or that indicate a serious problem if they fail.
 - `"SectionCanaryTest"`: same as `"CanaryTest"`, but only aborts the current section (as delineated by `BeginTestSection[...]` and `EndTestSection[]`) of tests instead of the entire suite.
 - `"PerformanceTest"`: long-running or constrained test. Tests with explicitly specified options for `MemoryConstraint` or `TimeConstraint` are also considered performance tests. Performance tests will be skipped in quick/local reports.
