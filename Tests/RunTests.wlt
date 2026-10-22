@@ -7,7 +7,7 @@ query[obj_?AssociationQ] := Query[{
 	"TestConfiguration" -> Keys /* Sort,
 	"TestFileContexts" -> AssociationQ,
 	"TestTimings" -> AssociationQ,
-	"TestMetaData" -> AssociationQ
+	"TestMetadata" -> AssociationQ
 }] @ KeySort[obj];
 
 query[expr_] := expr;
@@ -27,7 +27,7 @@ $defaultExpectedResults[rules___] := KeySort @ Association[
 	"TestFilesWithFailures" -> <||>,
 	"TestFileContexts" -> True,
 	"TestTimings" -> True,
-	"TestMetaData" -> True,
+	"TestMetadata" -> True,
 	rules
 ]
 
