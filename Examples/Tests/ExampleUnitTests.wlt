@@ -60,6 +60,18 @@ TestCreate[
 	TestID -> "KnownIssue-AlreadyFixed"
 ] // TagTest["KnownIssue"]
 
+(*
+	The result is correct, but an unexpected message is issued. "KnownMessageIssue" only covers the "MessagesFailure" outcome:
+	if the result itself were wrong, the test would still show up as a "Failure".
+*)
+TestCreate[
+	ToExpression["1+"]
+	,
+	$Failed
+	,
+	TestID -> "KnownMessageIssue-UnexpectedMessage"
+] // TagTest["KnownMessageIssue"]
+
 EndTestSection[(*"Known-Issues"*)]
 
 (* ========================================================================= *)

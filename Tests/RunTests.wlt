@@ -18,7 +18,7 @@ $defaultExpectedResults[rules___] := KeySort @ Association[
 	"Summary" -> {
 		Association[
 			"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+			"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 1
 		]
 	},
 	"GroupedResults" -> True,
@@ -57,7 +57,7 @@ TestCreate[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 1
 			]
 		}
 	]
@@ -73,7 +73,7 @@ TestCreate[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+				"Fixed" -> 1, "Implemented" -> 2, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 1
 			]
 		}
 	]
@@ -88,7 +88,7 @@ TestCreate[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0,
-				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 3
+				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 3
 			]
 		}
 	]
@@ -103,7 +103,7 @@ TestCreate[
 		"Summary" -> {
 			Association[
 				"FileName" -> "ExampleUnitTests.wlt",  "Success" -> 7, "Failure" -> 0, "PerformanceFailure" -> 0,
-				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 4
+				"Fixed" -> 1, "Implemented" -> 0, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 4
 			]
 		}
 	]
@@ -118,7 +118,7 @@ TestCreate[
 	$defaultExpectedResults[
 		"Summary" -> {
 			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 8, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
-				"Implemented" -> 2, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 1
+				"Implemented" -> 2, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 1
 			]
 		}
 	]
@@ -132,7 +132,7 @@ TestCreate[
 	$defaultExpectedResults[
 		"Summary" -> {
 			Association["FileName" -> "ExampleUnitTests.wlt",  "Success" -> 6, "Failure" -> 0, "PerformanceFailure" -> 0, "Fixed" -> 1,
-				"Implemented" -> 0, "KnownIssue" -> 2, "NotImplemented" -> 0, "Skipped" -> 5
+				"Implemented" -> 0, "KnownIssue" -> 3, "NotImplemented" -> 0, "Skipped" -> 5
 			]
 		}
 	]
