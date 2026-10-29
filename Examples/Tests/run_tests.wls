@@ -426,4 +426,27 @@ If[ TrueQ[$totalFailed === 0 && $testResult["ReportSucceeded"]],
 ];
 Print[""];
 
+(* ── Tests to untag ────────────────────────────────────────────────────── *)
+
+$untag = Catenate @ KeyValueMap[
+	Function[{cat, tests}, {cat, #} & /@ tests],
+	KeyTake[$groupedResults, {"Fixed", "Implemented"}]
+];
+
+If[Length[$untag] > 0,
+	Print[c[StandardBlue, Bold, "Fixed / Implemented"] <> c[GrayLevel[0.5], "  (remove the KnownIssue / NotImplemented tag)"]];
+	KeyValueMap[
+		Function[{file, tests},
+			Print[c[GrayLevel[0.4], file]];
+			Scan[
+				Print["  ", ToString[#[[2]]["TestID"], InputForm], "  ", c[GrayLevel[0.5], #[[1]]]] &,
+				tests
+			]
+		],
+		GroupBy[$untag, Replace[Quiet @ #[[2]]["TestFileName"], Except[_String] -> "(unknown)"] &]
+	];
+	Print[""]
+];
+
+
 Exit[If[$totalFailed > 0, 1, 0]]
