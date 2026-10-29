@@ -84,9 +84,9 @@ BeginTestSection["NotImplemented"]
 
 (* Represents a feature that still returns a failure for odd values. *)
 TestCreate[
-	MyFunction[7]
+	MyFunction[4]
 	,
-	_?FailureQ
+	8
 	,
 	TestID -> "NotImplemented-FailingCase",
 	SameTest -> MatchQ
@@ -168,9 +168,9 @@ TestCreate[
 (* A test with TimeConstraint is automatically considered a performance test. *)
 TestCreate[
 	Pause[0.02];
-	MyFunction[4]
+	MyFunction[6]
 	,
-	8
+	18
 	,
 	TestID -> "PerformanceTest-FromConstraint",
 	TimeConstraint -> 1
