@@ -1061,7 +1061,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"TestFileContexts" -> $TestFileContexts,
 			"TestTimings" -> $testTimings,
 			"TestMetadata" -> $TestMetadata,
-			"NonuniqueTestIDs" -> Keys @ Select[$uniqueTestIDs, Not]
+			"NonUniqueTestIDs" -> Keys @ Select[$uniqueTestIDs, Not]
 		|>
 	]
 ];

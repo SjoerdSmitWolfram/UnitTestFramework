@@ -22,7 +22,7 @@ $defaultExpectedResults[rules___] := KeySort @ Association[
 		]
 	},
 	"GroupedResults" -> True,
-	"NonuniqueTestIDs" -> {},
+	"NonUniqueTestIDs" -> {},
 	"TestConfiguration" -> expectedConfigKeys,
 	"$TestSuiteAbortedQ" -> False,
 	"TestFilesWithFailures" -> <||>,

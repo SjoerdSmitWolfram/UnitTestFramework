@@ -122,7 +122,7 @@ As part of the initialization, the runner will also set `$TestConfig` to the ful
 
 - Use `TestCreate` for test definitions. Do not use the old symbol `VerificationTest` because it does not support the new features.
 - Use metadata tags to control evaluation behavior of your tests and how tests are reported in the summary.
-- Give every test a `TestID` that is unique across the whole test suite. Results, timings and metadata are stored by `TestID`, so a duplicate would overwrite another test's entries. The runner issues a `RunTests::duptestid` message for each duplicate and lists them under `"NonuniqueTestIDs"` in the output.
+- Give every test a `TestID` that is unique across the whole test suite. Results, timings and metadata are stored by `TestID`, so a duplicate would overwrite another test's entries. The runner issues a `RunTests::duptestid` message for each duplicate and lists them under `"NonUniqueTestIDs"` in the output.
 
 ## Where files should live
 
@@ -163,7 +163,7 @@ By default this:
   - `"TestFileContexts"`: association of test files to the contexts they were evaluated in, plus a `"DefaultContexts"` key with the `$ContextPath` used during the run
   - `"TestTimings"`: association of `TestID`s to the evaluation time in seconds (only for tests that were evaluated)
   - `"TestMetadata"`: association of `TestID`s to the `MetaInformation` of each test, including tags and `"TestSection"`
-  - `"NonuniqueTestIDs"`: list of `TestID`s that occur more than once in the test suite
+  - `"NonUniqueTestIDs"`: list of `TestID`s that occur more than once in the test suite
 
 The same association is stored in `$RunTestsOutput`. If the configuration is invalid, `RunTests` returns a `Failure`.
 
