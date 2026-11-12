@@ -175,6 +175,7 @@ initVar[var_, val_] := If[
 initVar[$TestConfig, <||>];
 initVar[$RunTestsOutput, <||>];
 initVar[$testTimings, <||>];
+initVar[$uniqueTestIDs, <||>];
 
 
 Clear[ToDecimalDigits];
@@ -303,6 +304,13 @@ TestEvaluator[t_TestObject] := Block[{
 	section,
 	sectionsPattern
 },
+	(* Results, timings and metadata are keyed by TestID, so a duplicate silently overwrites another test's entries *)
+	If[ KeyExistsQ[$uniqueTestIDs, id],
+		Message[RunTests::duptestid, id, t["TestFileName"]];
+		$uniqueTestIDs[id] = False
+		,
+		$uniqueTestIDs[id] = True
+	];
 	(* Tag in section information that was generated during TestCreate by the TestReport HandlerFunctions *)
 	test //= TagTest[Lookup[$TestMetadata, id, <||>]];
 	newMetaInfo = test["MetaInformation"];
@@ -927,6 +935,7 @@ RunTests::localconfig2 = "Local config file `1` could not be imported and will b
 RunTests::noroot = "No local root was specified. Cannot load dependencies `1`. Aborting.";
 RunTests::dependNotFound = "Dependencies `1` not found in LocalDependenciesRoot. Aborting.";
 RunTests::multdepend = "Multiple PacletInfo files found for the following dependencies: `1`. Aborting.";
+RunTests::duptestid = "Duplicate TestID `1` in `2`. TestIDs must be unique across the test suite.";
 
 RunTests[files : _?testFileQ | {__?testFileQ}, a_Association?AssociationQ] := Module[{
 	assoc = a,
@@ -968,6 +977,7 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 	init = OptionValue["PacletInitialization"],
 	usedContexts = <||>,
 	$testTimings = <||>,
+	$uniqueTestIDs = <||>,
 	files, testDirDepth,
 	$fileContext,
 	fullTestContextPath,
@@ -1050,7 +1060,8 @@ RunTests[conf : $configPatt, a_Association?AssociationQ] := Block[{
 			"TestFilesWithFailures" -> filesWithFailures,
 			"TestFileContexts" -> $TestFileContexts,
 			"TestTimings" -> $testTimings,
-			"TestMetadata" -> $TestMetadata
+			"TestMetadata" -> $TestMetadata,
+			"NonuniqueTestIDs" -> Keys @ Select[$uniqueTestIDs, Not]
 		|>
 	]
 ];
